@@ -2,5 +2,7 @@ bin/
 obj/
 /packages/
 riderModule.iml
-/_ReSharper.Caches/.env
+/_ReSharper.Caches/
+.env
 *.DotSettings.user
+Leaderboard.Api/logs/
