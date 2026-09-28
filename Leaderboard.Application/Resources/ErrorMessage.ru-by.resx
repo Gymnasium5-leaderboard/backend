@@ -1,4 +1,4 @@
-﻿<root>
+<root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -13,5 +13,35 @@
     </resheader>
     <data name="InternalServerError" xml:space="preserve">
         <value>Внутренняя ошибка сервера</value>
+    </data>
+    <data name="InvalidCredentials" xml:space="preserve">
+        <value>Неверный логин или пароль</value>
+    </data>
+    <data name="InvalidRefreshToken" xml:space="preserve">
+        <value>Refresh-токен недействителен или истёк</value>
+    </data>
+    <data name="WrongCurrentPassword" xml:space="preserve">
+        <value>Текущий пароль указан неверно</value>
+    </data>
+    <data name="InvalidClaims" xml:space="preserve">
+        <value>Некорректные данные в токене доступа</value>
+    </data>
+    <data name="OwnerNotFound" xml:space="preserve">
+        <value>Овнер не найден</value>
+    </data>
+    <data name="OwnerAlreadyExists" xml:space="preserve">
+        <value>Овнер с таким логином уже существует</value>
+    </data>
+    <data name="InvalidLogin" xml:space="preserve">
+        <value>Логин должен быть длиной от {0} до {1} символов и содержать только латинские буквы, цифры, '.', '_' или '-'</value>
+    </data>
+    <data name="InvalidPassword" xml:space="preserve">
+        <value>Пароль должен быть длиной от {0} до {1} символов</value>
+    </data>
+    <data name="InvalidFirstName" xml:space="preserve">
+        <value>Имя не должно быть пустым и должно быть не длиннее {0} символов</value>
+    </data>
+    <data name="InvalidLastName" xml:space="preserve">
+        <value>Фамилия не должна быть пустой и должна быть не длиннее {0} символов</value>
     </data>
 </root>

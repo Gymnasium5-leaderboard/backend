@@ -12,6 +12,7 @@ services:
       - "8080:8080"
     environment:
       ConnectionStrings__PostgresSQL: Server=postgres;Port=5432;Database=leaderboard;User Id=postgres;Password=${POSTGRES_PASSWORD}
+      JwtSettings__SigningKey: ${JWT_SIGNING_KEY}
 
   postgres:
     image: postgres:17

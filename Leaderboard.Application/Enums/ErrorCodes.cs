@@ -10,5 +10,13 @@ public enum ErrorCodes
     //Student: 51-60
     //Score: 61-70
 
-    InvalidProperty = 1
+    InvalidProperty = 1,
+
+    InvalidCredentials = 11,
+    InvalidRefreshToken = 12,
+    WrongCurrentPassword = 13,
+    InvalidClaims = 14,
+
+    OwnerNotFound = 21,
+    OwnerAlreadyExists = 22
 }

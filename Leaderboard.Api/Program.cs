@@ -8,17 +8,22 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<BusinessRules>(builder.Configuration.GetSection(nameof(BusinessRules)));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = nameof(Leaderboard.Application.Resources));
 
+builder.Services.AddAuthenticationAndAuthorization(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
 
 builder.Services.AddSerilog(configuration => configuration.ReadFrom.Configuration(builder.Configuration));
 
 builder.Services.AddDataAccessLayer(builder.Configuration);
+builder.Services.AddApplication();
+
+builder.Services.AddCors(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -29,6 +34,11 @@ app.UseRequestLogging();
 app.UseRouting();
 app.MapControllers();
 app.UseLocalization();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCors(Startup.CorsPolicyName);
+
+app.UseMiddleware<ClaimsValidationMiddleware>();
 
 app.UseSwagger();
 if (app.Environment.IsDevelopment())

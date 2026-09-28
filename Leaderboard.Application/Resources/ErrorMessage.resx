@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
@@ -20,5 +20,35 @@
     </resheader>
     <data name="InternalServerError" xml:space="preserve">
         <value>Internal server error</value>
+    </data>
+    <data name="InvalidCredentials" xml:space="preserve">
+        <value>Invalid login or password</value>
+    </data>
+    <data name="InvalidRefreshToken" xml:space="preserve">
+        <value>Refresh token is invalid or expired</value>
+    </data>
+    <data name="WrongCurrentPassword" xml:space="preserve">
+        <value>Current password is incorrect</value>
+    </data>
+    <data name="InvalidClaims" xml:space="preserve">
+        <value>Invalid access token claims</value>
+    </data>
+    <data name="OwnerNotFound" xml:space="preserve">
+        <value>Owner not found</value>
+    </data>
+    <data name="OwnerAlreadyExists" xml:space="preserve">
+        <value>An owner with this login already exists</value>
+    </data>
+    <data name="InvalidLogin" xml:space="preserve">
+        <value>Login must be {0} to {1} characters long and contain only Latin letters, digits, '.', '_' or '-'</value>
+    </data>
+    <data name="InvalidPassword" xml:space="preserve">
+        <value>Password must be {0} to {1} characters long</value>
+    </data>
+    <data name="InvalidFirstName" xml:space="preserve">
+        <value>First name must not be empty and must be at most {0} characters long</value>
+    </data>
+    <data name="InvalidLastName" xml:space="preserve">
+        <value>Last name must not be empty and must be at most {0} characters long</value>
     </data>
 </root>

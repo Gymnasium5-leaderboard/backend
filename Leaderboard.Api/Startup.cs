@@ -1,7 +1,13 @@
 ﻿using System.Reflection;
+using System.Security;
+using System.Text;
 using Asp.Versioning;
+using Leaderboard.Application.Providers;
+using Leaderboard.Domain.Interfaces.Provider;
+using Leaderboard.Domain.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
@@ -12,6 +18,9 @@ public static class Startup
 {
     private const string AppStartupSectionName = "AppStartupSettings";
     private const string AppStartupUrlLogName = "AppStartupUrlLog";
+    private const int MinSigningKeyBytes = 32;
+
+    public const string CorsPolicyName = "DefaultCorsPolicy";
 
     /// <summary>Logs all URLs on which the application is listening when it starts.</summary>
     /// <param name="app">The web application to which the middleware is added.</param>
@@ -28,6 +37,67 @@ public static class Startup
         });
     }
 
+
+    /// <summary>
+    ///     Adds JWT bearer authentication: the access token is signed with <see cref="JwtSettings.SigningKey" />
+    ///     and carries the owner id in "sub".
+    /// </summary>
+    /// <param name="services">The service collection to which authentication services are added.</param>
+    /// <param name="configuration">The application configuration with the JwtSettings section.</param>
+    public static void AddAuthenticationAndAuthorization(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()
+                          ?? throw new InvalidOperationException($"{nameof(JwtSettings)} section is missing.");
+        if (Encoding.UTF8.GetByteCount(jwtSettings.SigningKey) < MinSigningKeyBytes)
+            throw new InvalidOperationException(
+                $"{nameof(JwtSettings)}:{nameof(JwtSettings.SigningKey)} must be at least {MinSigningKeyBytes} bytes.");
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SigningKey)),
+                    ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+                    ClockSkew = TimeSpan.FromSeconds(30)
+                };
+            });
+        services.AddAuthorization();
+
+        services.AddSingleton<ITokenProvider, JwtTokenProvider>();
+    }
+
+    /// <summary>
+    ///     Configures Cross-Origin Resource Sharing (CORS) for the application.
+    /// </summary>
+    /// <param name="services">The service collection to which CORS services are added.</param>
+    /// <param name="configuration">The application configuration containing the CORS settings.</param>
+    /// <param name="environment">The web hosting environment used to determine development or production configuration.</param>
+    public static void AddCors(this IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment environment)
+    {
+        var allowedOrigins = configuration.GetSection(AppStartupSectionName).GetSection("CorsAllowedOrigins")
+            .Get<string[]>() ?? [];
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("DefaultCorsPolicy", builder =>
+            {
+                if (allowedOrigins.Length > 0) builder.WithOrigins(allowedOrigins).AllowCredentials();
+                else if (environment.IsDevelopment()) builder.AllowAnyOrigin();
+                else
+                    throw new SecurityException(
+                        "No CORS origins configured. In non-development environment, at least one allowed origin must be specified.");
+
+                builder.AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+    }
 
     /// <summary>
     ///     Adds Swagger with JWT bearer authorization and XML comments.

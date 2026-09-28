@@ -9,6 +9,7 @@ public static class EntityConstraints
     public const int LoginMinLength = 3;
     public const int LoginMaxLength = 50;
     public const int PasswordMinLength = 8;
+    public const int PasswordMaxLength = 100;
     public const int AcademicYearTitleMaxLength = 20;
     public const int ScoreDescriptionMaxLength = 500;
 }

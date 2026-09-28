@@ -67,5 +67,95 @@ namespace Leaderboard.Application.Resources {
                 return ResourceManager.GetString("InternalServerError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid login or password.
+        /// </summary>
+        public static string InvalidCredentials {
+            get {
+                return ResourceManager.GetString("InvalidCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh token is invalid or expired.
+        /// </summary>
+        public static string InvalidRefreshToken {
+            get {
+                return ResourceManager.GetString("InvalidRefreshToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current password is incorrect.
+        /// </summary>
+        public static string WrongCurrentPassword {
+            get {
+                return ResourceManager.GetString("WrongCurrentPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid access token claims.
+        /// </summary>
+        public static string InvalidClaims {
+            get {
+                return ResourceManager.GetString("InvalidClaims", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Owner not found.
+        /// </summary>
+        public static string OwnerNotFound {
+            get {
+                return ResourceManager.GetString("OwnerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An owner with this login already exists.
+        /// </summary>
+        public static string OwnerAlreadyExists {
+            get {
+                return ResourceManager.GetString("OwnerAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login must be {0} to {1} characters long and contain only Latin letters, digits, '.', '_' or '-'.
+        /// </summary>
+        public static string InvalidLogin {
+            get {
+                return ResourceManager.GetString("InvalidLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password must be {0} to {1} characters long.
+        /// </summary>
+        public static string InvalidPassword {
+            get {
+                return ResourceManager.GetString("InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First name must not be empty and must be at most {0} characters long.
+        /// </summary>
+        public static string InvalidFirstName {
+            get {
+                return ResourceManager.GetString("InvalidFirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last name must not be empty and must be at most {0} characters long.
+        /// </summary>
+        public static string InvalidLastName {
+            get {
+                return ResourceManager.GetString("InvalidLastName", resourceCulture);
+            }
+        }
     }
 }
