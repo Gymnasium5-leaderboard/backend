@@ -9,7 +9,7 @@ public class ClassMapping : Profile
     public ClassMapping()
     {
         CreateMap<SchoolClass, ClassDto>().ReverseMap();
-        CreateMap<CreateClassDto, SchoolClass>().ReverseMap();
-        CreateMap<UpdateClassDto, SchoolClass>().ReverseMap();
+        CreateMap<SchoolClass, CreateClassDto>().ReverseMap();
+        CreateMap<SchoolClass, UpdateClassDto>().ReverseMap();
     }
 }

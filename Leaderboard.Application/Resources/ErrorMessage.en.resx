@@ -56,4 +56,10 @@
     <data name="ClassAlreadyExists" xml:space="preserve">
         <value>An active class with this grade and letter already exists</value>
     </data>
+    <data name="StudentNotFound" xml:space="preserve">
+        <value>Student not found</value>
+    </data>
+    <data name="StudentListEmpty" xml:space="preserve">
+        <value>The student list is empty</value>
+    </data>
 </root>

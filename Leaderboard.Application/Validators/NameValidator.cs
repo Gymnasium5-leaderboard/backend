@@ -5,9 +5,9 @@ using Leaderboard.Domain.Settings;
 
 namespace Leaderboard.Application.Validators;
 
-public class OwnerNameValidator : AbstractValidator<IValidatableOwnerName>
+public class NameValidator : AbstractValidator<IValidatableName>
 {
-    public OwnerNameValidator()
+    public NameValidator()
     {
         RuleFor(x => x.FirstName).NotEmpty().WithMessage(_ => InvalidFirstNameMessage())
             .MaximumLength(EntityConstraints.NameMaxLength)

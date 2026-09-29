@@ -21,5 +21,7 @@ public enum ErrorCodes
     OwnerAlreadyExists = 22,
 
     ClassNotFound = 41,
-    ClassAlreadyExists = 42
+    ClassAlreadyExists = 42,
+
+    StudentNotFound = 51
 }

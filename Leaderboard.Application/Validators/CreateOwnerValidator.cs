@@ -15,7 +15,7 @@ public class CreateOwnerValidator : AbstractValidator<CreateOwnerDto>
             .WithMessage(_ => InvalidLoginMessage())
             .Matches("^[A-Za-z0-9._-]+$").WithMessage(_ => InvalidLoginMessage());
         Include(new PasswordValidator());
-        Include(new OwnerNameValidator());
+        Include(new NameValidator());
     }
 
     // Formatted on each validation, so the message follows the request culture

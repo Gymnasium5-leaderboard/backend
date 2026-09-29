@@ -19,7 +19,7 @@ public class OwnerService(
     IBaseRepository<LeaderboardOwner> ownerRepository,
     IPasswordHasher<LeaderboardOwner> passwordHasher,
     IValidator<CreateOwnerDto> createValidator,
-    IValidator<IValidatableOwnerName> nameValidator,
+    IValidator<IValidatableName> nameValidator,
     IMapper mapper) : IOwnerService
 {
     public async Task<BaseResult<OwnerDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)

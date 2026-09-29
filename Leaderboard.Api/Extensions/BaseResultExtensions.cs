@@ -24,7 +24,10 @@ public static class BaseResultExtensions
 
         // Class
         { (int)ErrorCodes.ClassNotFound, StatusCodes.Status404NotFound },
-        { (int)ErrorCodes.ClassAlreadyExists, StatusCodes.Status409Conflict }
+        { (int)ErrorCodes.ClassAlreadyExists, StatusCodes.Status409Conflict },
+
+        // Student
+        { (int)ErrorCodes.StudentNotFound, StatusCodes.Status404NotFound }
     };
 
     /// <summary>

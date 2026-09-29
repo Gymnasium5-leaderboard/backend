@@ -193,5 +193,23 @@ namespace Leaderboard.Application.Resources {
                 return ResourceManager.GetString("ClassAlreadyExists", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Student not found.
+        /// </summary>
+        public static string StudentNotFound {
+            get {
+                return ResourceManager.GetString("StudentNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The student list is empty.
+        /// </summary>
+        public static string StudentListEmpty {
+            get {
+                return ResourceManager.GetString("StudentListEmpty", resourceCulture);
+            }
+        }
     }
 }

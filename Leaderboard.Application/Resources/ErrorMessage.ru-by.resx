@@ -56,4 +56,10 @@
     <data name="ClassAlreadyExists" xml:space="preserve">
         <value>Действующий класс с таким номером и буквой уже существует</value>
     </data>
+    <data name="StudentNotFound" xml:space="preserve">
+        <value>Ученик не найден</value>
+    </data>
+    <data name="StudentListEmpty" xml:space="preserve">
+        <value>Список учеников пуст</value>
+    </data>
 </root>
