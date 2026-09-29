@@ -44,4 +44,16 @@
     <data name="InvalidLastName" xml:space="preserve">
         <value>Last name must not be empty and must be at most {0} characters long</value>
     </data>
+    <data name="InvalidGrade" xml:space="preserve">
+        <value>Grade must be from {0} to {1}</value>
+    </data>
+    <data name="InvalidClassLetter" xml:space="preserve">
+        <value>Class letter must be a single letter</value>
+    </data>
+    <data name="ClassNotFound" xml:space="preserve">
+        <value>Class not found</value>
+    </data>
+    <data name="ClassAlreadyExists" xml:space="preserve">
+        <value>An active class with this grade and letter already exists</value>
+    </data>
 </root>

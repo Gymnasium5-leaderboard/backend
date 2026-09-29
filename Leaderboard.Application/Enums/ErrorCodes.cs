@@ -18,5 +18,8 @@ public enum ErrorCodes
     InvalidClaims = 14,
 
     OwnerNotFound = 21,
-    OwnerAlreadyExists = 22
+    OwnerAlreadyExists = 22,
+
+    ClassNotFound = 41,
+    ClassAlreadyExists = 42
 }

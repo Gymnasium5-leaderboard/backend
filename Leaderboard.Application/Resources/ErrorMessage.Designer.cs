@@ -157,5 +157,41 @@ namespace Leaderboard.Application.Resources {
                 return ResourceManager.GetString("InvalidLastName", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grade must be from {0} to {1}.
+        /// </summary>
+        public static string InvalidGrade {
+            get {
+                return ResourceManager.GetString("InvalidGrade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Class letter must be a single letter.
+        /// </summary>
+        public static string InvalidClassLetter {
+            get {
+                return ResourceManager.GetString("InvalidClassLetter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Class not found.
+        /// </summary>
+        public static string ClassNotFound {
+            get {
+                return ResourceManager.GetString("ClassNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An active class with this grade and letter already exists.
+        /// </summary>
+        public static string ClassAlreadyExists {
+            get {
+                return ResourceManager.GetString("ClassAlreadyExists", resourceCulture);
+            }
+        }
     }
 }

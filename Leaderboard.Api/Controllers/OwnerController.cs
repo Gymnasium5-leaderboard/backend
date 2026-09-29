@@ -25,7 +25,7 @@ public class OwnerController(
     /// <response code="201">Owner created</response>
     /// <response code="400">Invalid login, password or name</response>
     /// <response code="409">The login is taken</response>
-    [HttpPost("create")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]

@@ -27,10 +27,10 @@
         <value>Некорректные данные в токене доступа</value>
     </data>
     <data name="OwnerNotFound" xml:space="preserve">
-        <value>Овнер не найден</value>
+        <value>Владелец не найден</value>
     </data>
     <data name="OwnerAlreadyExists" xml:space="preserve">
-        <value>Овнер с таким логином уже существует</value>
+        <value>Владелец с таким логином уже существует</value>
     </data>
     <data name="InvalidLogin" xml:space="preserve">
         <value>Логин должен быть длиной от {0} до {1} символов и содержать только латинские буквы, цифры, '.', '_' или '-'</value>
@@ -43,5 +43,17 @@
     </data>
     <data name="InvalidLastName" xml:space="preserve">
         <value>Фамилия не должна быть пустой и должна быть не длиннее {0} символов</value>
+    </data>
+    <data name="InvalidGrade" xml:space="preserve">
+        <value>Номер класса должен быть от {0} до {1}</value>
+    </data>
+    <data name="InvalidClassLetter" xml:space="preserve">
+        <value>Буква класса должна быть одной буквой</value>
+    </data>
+    <data name="ClassNotFound" xml:space="preserve">
+        <value>Класс не найден</value>
+    </data>
+    <data name="ClassAlreadyExists" xml:space="preserve">
+        <value>Действующий класс с таким номером и буквой уже существует</value>
     </data>
 </root>

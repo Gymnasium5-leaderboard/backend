@@ -20,7 +20,11 @@ public static class BaseResultExtensions
 
         // Owner
         { (int)ErrorCodes.OwnerNotFound, StatusCodes.Status404NotFound },
-        { (int)ErrorCodes.OwnerAlreadyExists, StatusCodes.Status409Conflict }
+        { (int)ErrorCodes.OwnerAlreadyExists, StatusCodes.Status409Conflict },
+
+        // Class
+        { (int)ErrorCodes.ClassNotFound, StatusCodes.Status404NotFound },
+        { (int)ErrorCodes.ClassAlreadyExists, StatusCodes.Status409Conflict }
     };
 
     /// <summary>
