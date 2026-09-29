@@ -42,7 +42,9 @@ public class AuthController(IAuthService authService) : BaseController
     public async Task<ActionResult<BaseResult<AccessTokenDto>>> RefreshAsync(CancellationToken cancellationToken)
     {
         var refreshToken = Request.GetRefreshToken();
-        var result = await authService.RefreshAsync(refreshToken!, cancellationToken);
+        var result = refreshToken == null
+            ? BaseResult<TokenDto>.Failure(ErrorMessage.InvalidRefreshToken, (int)ErrorCodes.InvalidRefreshToken)
+            : await authService.RefreshAsync(refreshToken, cancellationToken);
 
         return ToAccessTokenResult(result);
     }
