@@ -15,7 +15,7 @@ public static class BaseResultExtensions
         // Auth
         { (int)ErrorCodes.InvalidCredentials, StatusCodes.Status401Unauthorized },
         { (int)ErrorCodes.InvalidRefreshToken, StatusCodes.Status401Unauthorized },
-        { (int)ErrorCodes.WrongCurrentPassword, StatusCodes.Status400BadRequest },
+        { (int)ErrorCodes.WrongCurrentPassword, StatusCodes.Status401Unauthorized },
         { (int)ErrorCodes.InvalidClaims, StatusCodes.Status401Unauthorized },
 
         // Owner

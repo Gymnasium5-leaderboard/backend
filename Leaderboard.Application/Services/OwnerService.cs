@@ -32,11 +32,21 @@ public class OwnerService(
             : BaseResult<OwnerDto>.Success(mapper.Map<OwnerDto>(owner));
     }
 
-    public async Task<BaseResult<OwnerDto>> CreateAsync(CreateOwnerDto dto,
+    public async Task<BaseResult<OwnerDto>> CreateAsync(long creatorId, CreateOwnerDto dto,
         CancellationToken cancellationToken = default)
     {
         var (isValid, errorMessage) = await createValidator.ValidateWithMessageAsync(dto, cancellationToken);
         if (!isValid) return BaseResult<OwnerDto>.Failure(errorMessage, (int)ErrorCodes.InvalidProperty);
+
+        var creator = await ownerRepository.GetAll().AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == creatorId, cancellationToken);
+        if (creator == null)
+            return BaseResult<OwnerDto>.Failure(ErrorMessage.OwnerNotFound, (int)ErrorCodes.OwnerNotFound);
+
+        if (passwordHasher.VerifyHashedPassword(creator, creator.PasswordHash, dto.CreatorPassword) ==
+            PasswordVerificationResult.Failed)
+            return BaseResult<OwnerDto>.Failure(ErrorMessage.WrongCurrentPassword,
+                (int)ErrorCodes.WrongCurrentPassword);
 
         if (await ownerRepository.GetAll().AnyAsync(x => x.Login == dto.Login, cancellationToken))
             return BaseResult<OwnerDto>.Failure(ErrorMessage.OwnerAlreadyExists, (int)ErrorCodes.OwnerAlreadyExists);

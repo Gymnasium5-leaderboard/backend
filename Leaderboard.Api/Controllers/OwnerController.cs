@@ -22,17 +22,13 @@ public class OwnerController(
     /// <summary>
     ///     Creates an owner with a temporary password.
     /// </summary>
-    /// <response code="201">Owner created</response>
-    /// <response code="400">Invalid login, password or name</response>
-    /// <response code="409">The login is taken</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<BaseResult<OwnerDto>>> CreateAsync(CreateOwnerDto dto,
         CancellationToken cancellationToken)
     {
-        var result = await ownerService.CreateAsync(dto, cancellationToken);
+        var result = await ownerService.CreateAsync(User.GetOwnerId(), dto, cancellationToken);
         return result.ToActionResult(HttpStatusCode.Created);
     }
 
