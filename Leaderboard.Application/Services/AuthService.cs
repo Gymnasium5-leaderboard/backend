@@ -31,7 +31,7 @@ public class AuthService(
 
     public async Task<BaseResult<TokenDto>> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
     {
-        var owner = await unitOfWork.OwnerRepository.GetAll()
+        var owner = await unitOfWork.Owners.GetAll()
             .FirstOrDefaultAsync(x => x.Login == dto.Login, cancellationToken);
         if (owner == null) return InvalidCredentials();
 
@@ -90,7 +90,7 @@ public class AuthService(
         var (isValid, errorMessage) = await passwordValidator.ValidateWithMessageAsync(dto, cancellationToken);
         if (!isValid) return BaseResult.Failure(errorMessage, (int)ErrorCodes.InvalidProperty);
 
-        var owner = await unitOfWork.OwnerRepository.GetAll()
+        var owner = await unitOfWork.Owners.GetAll()
             .FirstOrDefaultAsync(x => x.Id == ownerId, cancellationToken);
         if (owner == null) return BaseResult.Failure(ErrorMessage.OwnerNotFound, (int)ErrorCodes.OwnerNotFound);
 

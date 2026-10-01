@@ -22,12 +22,18 @@ public static class BaseResultExtensions
         { (int)ErrorCodes.OwnerNotFound, StatusCodes.Status404NotFound },
         { (int)ErrorCodes.OwnerAlreadyExists, StatusCodes.Status409Conflict },
 
+        // AcademicYear
+        { (int)ErrorCodes.CurrentAcademicYearNotFound, StatusCodes.Status404NotFound },
+
         // Class
         { (int)ErrorCodes.ClassNotFound, StatusCodes.Status404NotFound },
         { (int)ErrorCodes.ClassAlreadyExists, StatusCodes.Status409Conflict },
 
         // Student
-        { (int)ErrorCodes.StudentNotFound, StatusCodes.Status404NotFound }
+        { (int)ErrorCodes.StudentNotFound, StatusCodes.Status404NotFound },
+
+        // Score
+        { (int)ErrorCodes.ScoreWouldBeNegative, StatusCodes.Status409Conflict }
     };
 
     /// <summary>
@@ -47,6 +53,18 @@ public static class BaseResultExtensions
     public static ActionResult<BaseResult> ToActionResult(this BaseResult result)
     {
         if (result.IsSuccess) return new StatusCodeResult(StatusCodes.Status204NoContent);
+
+        return new ObjectResult(result) { StatusCode = GetStatusCode(result.ErrorCode) };
+    }
+
+    /// <summary>
+    ///     Converts a <see cref="CollectionResult{T}" /> into an ActionResult with the status code of its error.
+    /// </summary>
+    public static ActionResult<CollectionResult<T>> ToActionResult<T>(
+        this CollectionResult<T> result,
+        HttpStatusCode successStatusCode = HttpStatusCode.OK) where T : class
+    {
+        if (result.IsSuccess) return new ObjectResult(result) { StatusCode = (int)successStatusCode };
 
         return new ObjectResult(result) { StatusCode = GetStatusCode(result.ErrorCode) };
     }

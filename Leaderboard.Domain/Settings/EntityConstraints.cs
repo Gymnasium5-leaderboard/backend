@@ -12,4 +12,5 @@ public static class EntityConstraints
     public const int PasswordMaxLength = 100;
     public const int AcademicYearTitleMaxLength = 20;
     public const int ScoreDescriptionMaxLength = 500;
+    public const int MaxPageSize = 100;
 }

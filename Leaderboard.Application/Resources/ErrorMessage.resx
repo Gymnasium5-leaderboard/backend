@@ -69,4 +69,28 @@
     <data name="StudentListEmpty" xml:space="preserve">
         <value>The student list is empty</value>
     </data>
+    <data name="CurrentAcademicYearNotFound" xml:space="preserve">
+        <value>Current academic year not found</value>
+    </data>
+    <data name="InvalidScoreDelta" xml:space="preserve">
+        <value>Score change must not be zero and must be between -{0} and {0}</value>
+    </data>
+    <data name="InvalidScoreDescription" xml:space="preserve">
+        <value>Description must be at most {0} characters long</value>
+    </data>
+    <data name="InvalidScoreTarget" xml:space="preserve">
+        <value>Specify either a list of students or a class</value>
+    </data>
+    <data name="InvalidPage" xml:space="preserve">
+        <value>Page must be at least 1</value>
+    </data>
+    <data name="InvalidPageSize" xml:space="preserve">
+        <value>Page size must be between 1 and {0}</value>
+    </data>
+    <data name="ScoreWouldBeNegative" xml:space="preserve">
+        <value>The score cannot go below zero for students with ids: {0}</value>
+    </data>
+    <data name="StudentsNotFound" xml:space="preserve">
+        <value>Students not found, ids: {0}</value>
+    </data>
 </root>

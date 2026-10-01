@@ -8,6 +8,8 @@ public interface IBaseRepository<TEntity> : IStateSaveChanges
 
     Task<TEntity> CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
+    Task CreateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+
     TEntity Update(TEntity entity);
 
     TEntity Remove(TEntity entity);

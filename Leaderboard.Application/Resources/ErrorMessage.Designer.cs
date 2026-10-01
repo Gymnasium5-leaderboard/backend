@@ -60,119 +60,11 @@ namespace Leaderboard.Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Internal server error.
+        ///   Looks up a localized string similar to An active class with this grade and letter already exists.
         /// </summary>
-        public static string InternalServerError {
+        public static string ClassAlreadyExists {
             get {
-                return ResourceManager.GetString("InternalServerError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid login or password.
-        /// </summary>
-        public static string InvalidCredentials {
-            get {
-                return ResourceManager.GetString("InvalidCredentials", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Refresh token is invalid or expired.
-        /// </summary>
-        public static string InvalidRefreshToken {
-            get {
-                return ResourceManager.GetString("InvalidRefreshToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current password is incorrect.
-        /// </summary>
-        public static string WrongCurrentPassword {
-            get {
-                return ResourceManager.GetString("WrongCurrentPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid access token claims.
-        /// </summary>
-        public static string InvalidClaims {
-            get {
-                return ResourceManager.GetString("InvalidClaims", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Owner not found.
-        /// </summary>
-        public static string OwnerNotFound {
-            get {
-                return ResourceManager.GetString("OwnerNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An owner with this login already exists.
-        /// </summary>
-        public static string OwnerAlreadyExists {
-            get {
-                return ResourceManager.GetString("OwnerAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Login must be {0} to {1} characters long and contain only Latin letters, digits, '.', '_' or '-'.
-        /// </summary>
-        public static string InvalidLogin {
-            get {
-                return ResourceManager.GetString("InvalidLogin", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Password must be {0} to {1} characters long.
-        /// </summary>
-        public static string InvalidPassword {
-            get {
-                return ResourceManager.GetString("InvalidPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to First name must not be empty and must be at most {0} characters long.
-        /// </summary>
-        public static string InvalidFirstName {
-            get {
-                return ResourceManager.GetString("InvalidFirstName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Last name must not be empty and must be at most {0} characters long.
-        /// </summary>
-        public static string InvalidLastName {
-            get {
-                return ResourceManager.GetString("InvalidLastName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Grade must be from {0} to {1}.
-        /// </summary>
-        public static string InvalidGrade {
-            get {
-                return ResourceManager.GetString("InvalidGrade", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Class letter must be a single letter.
-        /// </summary>
-        public static string InvalidClassLetter {
-            get {
-                return ResourceManager.GetString("InvalidClassLetter", resourceCulture);
+                return ResourceManager.GetString("ClassAlreadyExists", resourceCulture);
             }
         }
         
@@ -186,11 +78,182 @@ namespace Leaderboard.Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An active class with this grade and letter already exists.
+        ///   Looks up a localized string similar to Current academic year not found.
         /// </summary>
-        public static string ClassAlreadyExists {
+        public static string CurrentAcademicYearNotFound {
             get {
-                return ResourceManager.GetString("ClassAlreadyExists", resourceCulture);
+                return ResourceManager.GetString("CurrentAcademicYearNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal server error.
+        /// </summary>
+        public static string InternalServerError {
+            get {
+                return ResourceManager.GetString("InternalServerError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid access token claims.
+        /// </summary>
+        public static string InvalidClaims {
+            get {
+                return ResourceManager.GetString("InvalidClaims", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Class letter must be a single letter.
+        /// </summary>
+        public static string InvalidClassLetter {
+            get {
+                return ResourceManager.GetString("InvalidClassLetter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid login or password.
+        /// </summary>
+        public static string InvalidCredentials {
+            get {
+                return ResourceManager.GetString("InvalidCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First name must not be empty and must be at most {0} characters long.
+        /// </summary>
+        public static string InvalidFirstName {
+            get {
+                return ResourceManager.GetString("InvalidFirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grade must be from {0} to {1}.
+        /// </summary>
+        public static string InvalidGrade {
+            get {
+                return ResourceManager.GetString("InvalidGrade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last name must not be empty and must be at most {0} characters long.
+        /// </summary>
+        public static string InvalidLastName {
+            get {
+                return ResourceManager.GetString("InvalidLastName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login must be {0} to {1} characters long and contain only Latin letters, digits, &apos;.&apos;, &apos;_&apos; or &apos;-&apos;.
+        /// </summary>
+        public static string InvalidLogin {
+            get {
+                return ResourceManager.GetString("InvalidLogin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page must be at least 1.
+        /// </summary>
+        public static string InvalidPage {
+            get {
+                return ResourceManager.GetString("InvalidPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page size must be between 1 and {0}.
+        /// </summary>
+        public static string InvalidPageSize {
+            get {
+                return ResourceManager.GetString("InvalidPageSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password must be {0} to {1} characters long.
+        /// </summary>
+        public static string InvalidPassword {
+            get {
+                return ResourceManager.GetString("InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh token is invalid or expired.
+        /// </summary>
+        public static string InvalidRefreshToken {
+            get {
+                return ResourceManager.GetString("InvalidRefreshToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Score change must not be zero and must be between -{0} and {0}.
+        /// </summary>
+        public static string InvalidScoreDelta {
+            get {
+                return ResourceManager.GetString("InvalidScoreDelta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description must be at most {0} characters long.
+        /// </summary>
+        public static string InvalidScoreDescription {
+            get {
+                return ResourceManager.GetString("InvalidScoreDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify either a list of students or a class.
+        /// </summary>
+        public static string InvalidScoreTarget {
+            get {
+                return ResourceManager.GetString("InvalidScoreTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An owner with this login already exists.
+        /// </summary>
+        public static string OwnerAlreadyExists {
+            get {
+                return ResourceManager.GetString("OwnerAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Owner not found.
+        /// </summary>
+        public static string OwnerNotFound {
+            get {
+                return ResourceManager.GetString("OwnerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The score cannot go below zero for students with ids: {0}.
+        /// </summary>
+        public static string ScoreWouldBeNegative {
+            get {
+                return ResourceManager.GetString("ScoreWouldBeNegative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The student list is empty.
+        /// </summary>
+        public static string StudentListEmpty {
+            get {
+                return ResourceManager.GetString("StudentListEmpty", resourceCulture);
             }
         }
         
@@ -204,11 +267,20 @@ namespace Leaderboard.Application.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The student list is empty.
+        ///   Looks up a localized string similar to Students not found, ids: {0}.
         /// </summary>
-        public static string StudentListEmpty {
+        public static string StudentsNotFound {
             get {
-                return ResourceManager.GetString("StudentListEmpty", resourceCulture);
+                return ResourceManager.GetString("StudentsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current password is incorrect.
+        /// </summary>
+        public static string WrongCurrentPassword {
+            get {
+                return ResourceManager.GetString("WrongCurrentPassword", resourceCulture);
             }
         }
     }

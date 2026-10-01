@@ -5,7 +5,6 @@ namespace Leaderboard.Domain.Entities;
 // Append-only ledger: the single source of truth for scores
 public class ScoreTransaction : IEntityId<long>
 {
-    public long Id { get; set; }
     public long AcademicYearId { get; set; }
     public AcademicYear AcademicYear { get; set; }
     public long StudentId { get; set; }
@@ -15,5 +14,6 @@ public class ScoreTransaction : IEntityId<long>
     public int Delta { get; set; }
     public string? Description { get; set; }
     public Guid? IdempotencyKey { get; set; }
-    public DateTime CreatedAt { get; set; } // set by the database
+    public DateTime CreatedAt { get; set; } // set by the backend
+    public long Id { get; set; }
 }

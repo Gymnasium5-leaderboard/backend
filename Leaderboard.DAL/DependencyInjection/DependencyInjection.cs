@@ -1,3 +1,5 @@
+using EntityFramework.Exceptions.PostgreSQL;
+using Leaderboard.DAL.Locks;
 using Leaderboard.DAL.Repositories;
 using Leaderboard.Domain.Entities;
 using Leaderboard.Domain.Interfaces.Repository;
@@ -12,7 +14,8 @@ public static class DependencyInjection
     public static void AddDataAccessLayer(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("PostgresSQL");
-        services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString).UseExceptionProcessor());
 
         services.InitRepositories();
     }
@@ -31,6 +34,7 @@ public static class DependencyInjection
     {
         services.AddBaseRepositories(typeof(AcademicYear), typeof(LeaderboardOwner), typeof(RefreshToken),
             typeof(SchoolClass), typeof(ScoreTransaction), typeof(Student));
+        services.AddScoped<ILockAcquirer, NpgsqlLockAcquirer>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 

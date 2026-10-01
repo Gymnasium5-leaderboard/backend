@@ -72,7 +72,7 @@ public class StudentService(
             return CollectionResult<StudentDto>.Failure(ErrorMessage.ClassNotFound, (int)ErrorCodes.ClassNotFound);
 
         var students = mapper.Map<Student[]>(dtos);
-        foreach (var student in students) await studentRepository.CreateAsync(student, cancellationToken);
+        await studentRepository.CreateRangeAsync(students, cancellationToken);
         await studentRepository.SaveChangesAsync(cancellationToken);
 
         return CollectionResult<StudentDto>.Success(mapper.Map<StudentDto[]>(students));

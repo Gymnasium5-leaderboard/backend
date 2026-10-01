@@ -20,8 +20,12 @@ public enum ErrorCodes
     OwnerNotFound = 21,
     OwnerAlreadyExists = 22,
 
+    CurrentAcademicYearNotFound = 31,
+
     ClassNotFound = 41,
     ClassAlreadyExists = 42,
 
-    StudentNotFound = 51
+    StudentNotFound = 51,
+
+    ScoreWouldBeNegative = 61
 }

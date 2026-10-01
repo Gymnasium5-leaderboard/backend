@@ -62,4 +62,28 @@
     <data name="StudentListEmpty" xml:space="preserve">
         <value>Список учеников пуст</value>
     </data>
+    <data name="CurrentAcademicYearNotFound" xml:space="preserve">
+        <value>Текущий учебный год не найден</value>
+    </data>
+    <data name="InvalidScoreDelta" xml:space="preserve">
+        <value>Изменение балла не должно быть нулём и должно быть от -{0} до {0}</value>
+    </data>
+    <data name="InvalidScoreDescription" xml:space="preserve">
+        <value>Описание должно быть не длиннее {0} символов</value>
+    </data>
+    <data name="InvalidScoreTarget" xml:space="preserve">
+        <value>Укажите либо список учеников, либо класс</value>
+    </data>
+    <data name="InvalidPage" xml:space="preserve">
+        <value>Номер страницы должен быть не меньше 1</value>
+    </data>
+    <data name="InvalidPageSize" xml:space="preserve">
+        <value>Размер страницы должен быть от 1 до {0}</value>
+    </data>
+    <data name="ScoreWouldBeNegative" xml:space="preserve">
+        <value>Балл не может стать отрицательным у учеников с id: {0}</value>
+    </data>
+    <data name="StudentsNotFound" xml:space="preserve">
+        <value>Ученики не найдены, id: {0}</value>
+    </data>
 </root>

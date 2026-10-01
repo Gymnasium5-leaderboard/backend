@@ -21,7 +21,7 @@ public class StudentController(IStudentService studentService) : BaseController
     /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<BaseResult<IReadOnlyCollection<StudentDto>>>> GetAllAsync(long? classId,
+    public async Task<ActionResult<CollectionResult<StudentDto>>> GetAllAsync(long? classId,
         CancellationToken cancellationToken)
     {
         var result = await studentService.GetAllAsync(classId, cancellationToken);
@@ -67,7 +67,7 @@ public class StudentController(IStudentService studentService) : BaseController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BaseResult<IReadOnlyCollection<StudentDto>>>> CreateManyAsync(
+    public async Task<ActionResult<CollectionResult<StudentDto>>> CreateManyAsync(
         IReadOnlyCollection<CreateStudentDto> dtos, CancellationToken cancellationToken)
     {
         var result = await studentService.CreateManyAsync(dtos, cancellationToken);

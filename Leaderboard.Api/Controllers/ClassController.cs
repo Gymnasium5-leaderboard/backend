@@ -19,7 +19,7 @@ public class ClassController(IClassService classService) : BaseController
     /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<BaseResult<IReadOnlyCollection<ClassDto>>>> GetAllAsync(int? grade,
+    public async Task<ActionResult<CollectionResult<ClassDto>>> GetAllAsync(int? grade,
         CancellationToken cancellationToken)
     {
         var result = await classService.GetAllAsync(grade, cancellationToken);
