@@ -83,7 +83,7 @@ public class ScoreService(
         var (isValid, errorMessage) = await historyValidator.ValidateWithMessageAsync(query, cancellationToken);
         if (!isValid) return PagedResult<ScoreTransactionDto>.Failure(errorMessage, (int)ErrorCodes.InvalidProperty);
 
-        var yearId = await GetCurrentAcademicYearIdAsync(cancellationToken);
+        var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
         if (yearId == null)
             return PagedResult<ScoreTransactionDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
@@ -113,7 +113,7 @@ public class ScoreService(
         IReadOnlyCollection<long> studentIds, int delta, string? description, Func<long, Guid?> getIdempotencyKey,
         CancellationToken cancellationToken)
     {
-        var yearId = await GetCurrentAcademicYearIdAsync(cancellationToken);
+        var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
         if (yearId == null)
             return CollectionResult<ScoreChangedDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
@@ -205,14 +205,6 @@ public class ScoreService(
             .GroupBy(x => x.StudentId)
             .Select(g => new { StudentId = g.Key, Score = g.Sum(x => x.Delta) })
             .ToDictionaryAsync(x => x.StudentId, x => x.Score, cancellationToken);
-    }
-
-    private Task<long?> GetCurrentAcademicYearIdAsync(CancellationToken cancellationToken)
-    {
-        return academicYearRepository.GetAll()
-            .Where(x => x.FinishedAt == null)
-            .Select(x => (long?)x.Id)
-            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private static CollectionResult<ScoreChangedDto> StudentsNotFound(IEnumerable<long> studentIds)

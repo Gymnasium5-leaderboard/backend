@@ -6,7 +6,6 @@ using Leaderboard.Application.Resources;
 using Leaderboard.Domain.Dtos.Auth;
 using Leaderboard.Domain.Interfaces.Service;
 using Leaderboard.Domain.Results;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Leaderboard.Api.Controllers;
