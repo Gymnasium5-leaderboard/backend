@@ -28,8 +28,8 @@ public interface ILeaderboardService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Place and score of a student among the classmates.
+    ///     Rank and score of a student among the classmates.
     /// </summary>
-    Task<BaseResult<StudentPlaceDto>> GetStudentPlaceAsync(long studentId,
+    Task<BaseResult<StudentRankDto>> GetStudentRankAsync(long studentId,
         CancellationToken cancellationToken = default);
 }

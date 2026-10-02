@@ -56,29 +56,29 @@ public class LeaderboardService(
         return CollectionResult<StudentLeaderboardEntryDto>.Success(entries);
     }
 
-    public async Task<BaseResult<StudentPlaceDto>> GetStudentPlaceAsync(long studentId,
+    public async Task<BaseResult<StudentRankDto>> GetStudentRankAsync(long studentId,
         CancellationToken cancellationToken = default)
     {
         var student = await studentRepository.GetAll().AsNoTracking()
             .Include(x => x.Class)
             .FirstOrDefaultAsync(x => x.Id == studentId && x.IsActive && x.Class.IsActive, cancellationToken);
         if (student == null)
-            return BaseResult<StudentPlaceDto>.Failure(ErrorMessage.StudentNotFound, (int)ErrorCodes.StudentNotFound);
+            return BaseResult<StudentRankDto>.Failure(ErrorMessage.StudentNotFound, (int)ErrorCodes.StudentNotFound);
 
         var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
         if (yearId == null)
-            return BaseResult<StudentPlaceDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
+            return BaseResult<StudentRankDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
 
-        // The place is among the classmates, so the whole class is ranked
+        // The rank is among the classmates, so the whole class is ranked
         var classmates = await GetStudentScoresAsync(yearId.Value, student.ClassId, cancellationToken);
         var index = Array.FindIndex(classmates, x => x.StudentId == studentId);
-        var place = index + 1;
+        var rank = index + 1;
 
-        var dto = new StudentPlaceDto(place, student.Id, student.FirstName, student.LastName, classmates[index].Score,
+        var dto = new StudentRankDto(rank, student.Id, student.FirstName, student.LastName, classmates[index].Score,
             student.ClassId, student.Class.DisplayName);
 
-        return BaseResult<StudentPlaceDto>.Success(dto);
+        return BaseResult<StudentRankDto>.Success(dto);
     }
 
     private async Task<CollectionResult<ClassLeaderboardEntryDto>> GetClassScoresAsync(int? grade,

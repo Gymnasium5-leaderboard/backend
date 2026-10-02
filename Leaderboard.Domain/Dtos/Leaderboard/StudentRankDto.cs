@@ -1,8 +1,8 @@
 namespace Leaderboard.Domain.Dtos.Leaderboard;
 
-/// <param name="Place">Place among the classmates.</param>
-public record StudentPlaceDto(
-    int Place,
+/// <param name="Rank">Rank among the classmates.</param>
+public record StudentRankDto(
+    int Rank,
     long StudentId,
     string FirstName,
     string LastName,

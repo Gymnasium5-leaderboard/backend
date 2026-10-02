@@ -49,13 +49,13 @@ public class LeaderboardController(ILeaderboardService leaderboardService) : Bas
     }
 
     /// <summary>
-    ///     Gets place and score of a student among the classmates.
+    ///     Gets rank and score of a student among the classmates.
     /// </summary>
     [HttpGet("students/{studentId:long}")]
-    public async Task<ActionResult<BaseResult<StudentPlaceDto>>> GetStudentPlaceAsync(long studentId,
+    public async Task<ActionResult<BaseResult<StudentRankDto>>> GetStudentRankAsync(long studentId,
         CancellationToken cancellationToken)
     {
-        var result = await leaderboardService.GetStudentPlaceAsync(studentId, cancellationToken);
+        var result = await leaderboardService.GetStudentRankAsync(studentId, cancellationToken);
         return result.ToActionResult();
     }
 }
