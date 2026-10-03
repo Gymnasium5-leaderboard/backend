@@ -9,36 +9,6 @@ namespace Leaderboard.Tests.Mocks;
 
 internal static class RepositoryMocks
 {
-    private static readonly List<LeaderboardOwner> Owners;
-    private static readonly List<SchoolClass> Classes;
-    private static readonly List<Student> Students;
-    private static readonly List<ScoreTransaction> Transactions;
-
-    static RepositoryMocks()
-    {
-        var owners = OwnerMother.GetOwners().ToList();
-        var classes = ClassMother.GetClasses().ToList();
-        var students = StudentMother.GetStudents().ToList();
-        var transactions = ScoreTransactionMother.GetScoreTransactions().ToList();
-
-        foreach (var schoolClass in classes)
-            schoolClass.Students = students.Where(x => x.ClassId == schoolClass.Id).ToList();
-
-        foreach (var student in students)
-            student.Class = classes.First(x => x.Id == student.ClassId);
-
-        foreach (var transaction in transactions)
-        {
-            transaction.Student = students.First(x => x.Id == transaction.StudentId);
-            transaction.Owner = owners.First(x => x.Id == transaction.OwnerId);
-        }
-
-        Owners = owners;
-        Classes = classes;
-        Students = students;
-        Transactions = transactions;
-    }
-
     public static IMock<IUnitOfWork> GetMockUnitOfWork(IBaseRepository<LeaderboardOwner>? ownerRepository = null,
         IBaseRepository<Student>? studentRepository = null,
         IBaseRepository<ScoreTransaction>? scoreTransactionRepository = null)
@@ -64,13 +34,13 @@ internal static class RepositoryMocks
 
     public static IMock<IBaseRepository<LeaderboardOwner>> GetMockOwnerRepository()
     {
-        return GetMockRepository(Owners);
+        return GetMockRepository(BuildGraph().Owners);
     }
 
     public static IMock<IBaseRepository<RefreshToken>> GetMockRefreshTokenRepository()
     {
         // Linking tokens to owners
-        var owners = Owners;
+        var owners = BuildGraph().Owners;
         var tokens = RefreshTokenMother.GetRefreshTokens().ToList();
         tokens.ForEach(x => x.Owner = owners.First(o => o.Id == x.OwnerId));
 
@@ -79,17 +49,17 @@ internal static class RepositoryMocks
 
     public static IMock<IBaseRepository<SchoolClass>> GetMockClassRepository()
     {
-        return GetMockRepository(Classes);
+        return GetMockRepository(BuildGraph().Classes);
     }
 
     public static IMock<IBaseRepository<Student>> GetMockStudentRepository()
     {
-        return GetMockRepository(Students);
+        return GetMockRepository(BuildGraph().Students);
     }
 
     public static IMock<IBaseRepository<ScoreTransaction>> GetMockScoreTransactionRepository()
     {
-        return GetMockRepository(Transactions);
+        return GetMockRepository(BuildGraph().Transactions);
     }
 
     public static IMock<IBaseRepository<T>> GetEmptyMockRepository<T>() where T : class
@@ -110,5 +80,28 @@ internal static class RepositoryMocks
         mockRepository.Setup(x => x.Remove(It.IsAny<T>())).Returns((T entity) => entity);
 
         return mockRepository;
+    }
+
+    private static (List<LeaderboardOwner> Owners, List<SchoolClass> Classes, List<Student> Students,
+        List<ScoreTransaction> Transactions) BuildGraph()
+    {
+        var owners = OwnerMother.GetOwners().ToList();
+        var classes = ClassMother.GetClasses().ToList();
+        var students = StudentMother.GetStudents().ToList();
+        var transactions = ScoreTransactionMother.GetScoreTransactions().ToList();
+
+        foreach (var schoolClass in classes)
+            schoolClass.Students = students.Where(x => x.ClassId == schoolClass.Id).ToList();
+
+        foreach (var student in students)
+            student.Class = classes.First(x => x.Id == student.ClassId);
+
+        foreach (var transaction in transactions)
+        {
+            transaction.Student = students.First(x => x.Id == transaction.StudentId);
+            transaction.Owner = owners.First(x => x.Id == transaction.OwnerId);
+        }
+
+        return (owners, classes, students, transactions);
     }
 }

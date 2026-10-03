@@ -39,6 +39,24 @@ public class ClassServiceTests : SequentialFunctionalTest
     }
 
     [Fact]
+    public async Task GetAll_GradeFilter_ReturnsOkWithClassesOfGrade()
+    {
+        //Arrange
+        HttpClient.DefaultRequestHeaders.Authorization = null;
+        const int grade = 7;
+
+        //Act
+        var response = await HttpClient.GetAsync($"/api/class?grade={grade}");
+        var result = await response.Content.ReadFromJsonAsync<CollectionResult<ClassDto>>();
+
+        //Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(result!.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal(["7А", "7Б"], result.Data.Select(x => x.DisplayName));
+    }
+
+    [Fact]
     public async Task GetById_Class_ReturnsOk()
     {
         //Arrange
