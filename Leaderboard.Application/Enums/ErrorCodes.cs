@@ -21,6 +21,7 @@ public enum ErrorCodes
     OwnerAlreadyExists = 22,
 
     CurrentAcademicYearNotFound = 31,
+    AcademicYearAlreadyChanged = 32,
 
     ClassNotFound = 41,
     ClassAlreadyExists = 42,

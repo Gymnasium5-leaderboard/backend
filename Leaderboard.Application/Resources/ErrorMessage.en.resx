@@ -65,6 +65,9 @@
     <data name="CurrentAcademicYearNotFound" xml:space="preserve">
         <value>Current academic year not found</value>
     </data>
+    <data name="AcademicYearAlreadyChanged" xml:space="preserve">
+        <value>The academic year has already been changed, reload the page</value>
+    </data>
     <data name="InvalidScoreDelta" xml:space="preserve">
         <value>Score change must not be zero and must be between -{0} and {0}</value>
     </data>

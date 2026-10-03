@@ -24,6 +24,7 @@ public static class BaseResultExtensions
 
         // AcademicYear
         { (int)ErrorCodes.CurrentAcademicYearNotFound, StatusCodes.Status404NotFound },
+        { (int)ErrorCodes.AcademicYearAlreadyChanged, StatusCodes.Status409Conflict },
 
         // Class
         { (int)ErrorCodes.ClassNotFound, StatusCodes.Status404NotFound },

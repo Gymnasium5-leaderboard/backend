@@ -78,6 +78,15 @@ namespace Leaderboard.Application.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The academic year has already been changed, reload the page.
+        /// </summary>
+        public static string AcademicYearAlreadyChanged {
+            get {
+                return ResourceManager.GetString("AcademicYearAlreadyChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current academic year not found.
         /// </summary>
         public static string CurrentAcademicYearNotFound {

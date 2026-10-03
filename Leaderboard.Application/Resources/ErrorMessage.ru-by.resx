@@ -65,6 +65,9 @@
     <data name="CurrentAcademicYearNotFound" xml:space="preserve">
         <value>Текущий учебный год не найден</value>
     </data>
+    <data name="AcademicYearAlreadyChanged" xml:space="preserve">
+        <value>Учебный год уже сменился, обновите страницу</value>
+    </data>
     <data name="InvalidScoreDelta" xml:space="preserve">
         <value>Изменение балла не должно быть нулём и должно быть от -{0} до {0}</value>
     </data>
