@@ -73,10 +73,13 @@ public class AcademicYearService(
             return BaseResult<AcademicYearDto>.Failure(ErrorMessage.AcademicYearAlreadyChanged,
                 (int)ErrorCodes.AcademicYearAlreadyChanged);
 
-        // Graduation: students first, while their classes are still active
+        // Graduation: students first, while their classes are still active.
+        // ExecuteUpdate bypasses DateInterceptor, so LastModifiedAt is set here
         await unitOfWork.Students.GetAll()
             .Where(x => x.IsActive && x.Class.IsActive && x.Class.Grade == EntityConstraints.MaxGrade)
-            .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, false), cancellationToken);
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.IsActive, false)
+                .SetProperty(x => x.LastModifiedAt, now), cancellationToken);
         await classRepository.GetAll()
             .Where(x => x.IsActive && x.Grade == EntityConstraints.MaxGrade)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsActive, false), cancellationToken);
