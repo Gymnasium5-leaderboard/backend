@@ -106,7 +106,12 @@ public static class Startup
     /// <param name="services">The service collection to which Swagger services are added.</param>
     public static void AddSwagger(this IServiceCollection services)
     {
-        services.AddApiVersioning()
+        // Routes carry no version, so requests without one must fall back to v1 instead of 400
+        services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+            })
             .AddApiExplorer(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
