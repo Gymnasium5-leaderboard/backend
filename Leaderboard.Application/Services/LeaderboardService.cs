@@ -118,32 +118,37 @@ public class LeaderboardService(
         return CollectionResult<ClassLeaderboardEntryDto>.Success(entries);
     }
 
-    private Task<StudentScore[]> GetStudentScoresAsync(long yearId, long classId, CancellationToken cancellationToken)
+    private async Task<StudentScore[]> GetStudentScoresAsync(long yearId, long classId,
+        CancellationToken cancellationToken)
     {
         var transactions = scoreTransactionRepository.GetAll().Where(t => t.AcademicYearId == yearId);
-        return studentRepository.GetAll().AsNoTracking()
+
+        // An anonymous type, not the record: EF cannot order by members of a constructor projection
+        var students = await studentRepository.GetAll().AsNoTracking()
             .Where(x => x.IsActive && x.Class.IsActive)
             .Where(x => x.ClassId == classId)
-            .Select(s => new StudentScore(
+            .Select(s => new
+            {
                 s.Id,
                 s.FirstName,
                 s.LastName,
-                transactions.Where(t => t.StudentId == s.Id).Sum(t => t.Delta),
-                transactions.Where(t => t.StudentId == s.Id).Max(t => (DateTime?)t.CreatedAt)
-            ))
+                Score = transactions.Where(t => t.StudentId == s.Id).Sum(t => t.Delta),
+                ReachedAt = transactions.Where(t => t.StudentId == s.Id).Max(t => (DateTime?)t.CreatedAt)
+            })
             .OrderByDescending(x => x.Score)
             .ThenBy(x => x.ReachedAt == null)
             .ThenBy(x => x.ReachedAt)
             .ThenBy(x => x.LastName)
             .ThenBy(x => x.FirstName)
-            .ThenBy(x => x.StudentId)
+            .ThenBy(x => x.Id)
             .ToArrayAsync(cancellationToken);
+
+        return students.Select(x => new StudentScore(x.Id, x.FirstName, x.LastName, x.Score)).ToArray();
     }
 
     private sealed record StudentScore(
         long StudentId,
         string FirstName,
         string LastName,
-        int Score,
-        DateTime? ReachedAt);
+        int Score);
 }
