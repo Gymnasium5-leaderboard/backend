@@ -17,7 +17,6 @@ namespace Leaderboard.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:IdentitySequenceOptions", "'2', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -146,11 +145,6 @@ namespace Leaderboard.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "AcademicYear",
-                columns: new[] { "Id", "FinishedAt", "StartedAt", "Title" },
-                values: new object[] { 1L, null, new DateTime(2026, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc), "2026/2027" });
 
             migrationBuilder.InsertData(
                 table: "LeaderboardOwner",

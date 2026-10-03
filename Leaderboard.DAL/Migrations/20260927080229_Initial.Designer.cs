@@ -32,7 +32,6 @@ namespace Leaderboard.DAL.Migrations
                         .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<long>("Id"), 2L, null, null, null, null, null);
 
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
@@ -51,14 +50,6 @@ namespace Leaderboard.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("AcademicYear");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            StartedAt = new DateTime(2026, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "2026/2027"
-                        });
                 });
 
             modelBuilder.Entity("Leaderboard.Domain.Entities.LeaderboardOwner", b =>

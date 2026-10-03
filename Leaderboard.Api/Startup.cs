@@ -4,6 +4,7 @@ using System.Text;
 using Asp.Versioning;
 using Leaderboard.Application.Providers;
 using Leaderboard.Domain.Interfaces.Provider;
+using Leaderboard.Domain.Interfaces.Service;
 using Leaderboard.Domain.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -183,6 +184,16 @@ public static class Startup
             options.AddSupportedUICultures(supportedCultures);
             options.ApplyCurrentCultureToResponseHeaders = true;
         });
+    }
+
+    /// <summary>
+    ///     Creates the first academic year on an empty database, so scores can be changed right after deploy.
+    /// </summary>
+    /// <param name="serviceProvider">The application service provider.</param>
+    public static async Task EnsureCurrentAcademicYearAsync(this IServiceProvider serviceProvider)
+    {
+        await using var scope = serviceProvider.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<IAcademicYearInitializer>().EnsureCurrentAsync();
     }
 
     private static IEnumerable<string> GetHosts(this IApplicationBuilder app)

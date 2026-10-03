@@ -1,4 +1,5 @@
 using AutoMapper;
+using EntityFramework.Exceptions.Common;
 using Leaderboard.Application.Enums;
 using Leaderboard.Application.Resources;
 using Leaderboard.Domain.Dtos.AcademicYear;
@@ -15,8 +16,34 @@ public class AcademicYearService(
     IUnitOfWork unitOfWork,
     IBaseRepository<SchoolClass> classRepository,
     IBaseRepository<AcademicYear> academicYearRepository,
-    IMapper mapper) : IAcademicYearService
+    IMapper mapper) : IAcademicYearService, IAcademicYearInitializer
 {
+    private const int FirstMonthOfAcademicYear = 9;
+
+    public async Task EnsureCurrentAsync(CancellationToken cancellationToken = default)
+    {
+        if (await academicYearRepository.GetAll().AnyAsync(cancellationToken)) return;
+
+        // A school year starts on September 1: in October 2026 and in May 2027 it is "2026/2027"
+        var now = DateTime.UtcNow;
+        var startYear = now.Month >= FirstMonthOfAcademicYear ? now.Year : now.Year - 1;
+
+        await academicYearRepository.CreateAsync(new AcademicYear
+        {
+            Title = $"{startYear}/{startYear + 1}",
+            StartedAt = now
+        }, cancellationToken);
+
+        try
+        {
+            await academicYearRepository.SaveChangesAsync(cancellationToken);
+        }
+        catch (UniqueConstraintException)
+        {
+            // Another instance created it at the same time
+        }
+    }
+
     public async Task<BaseResult<AcademicYearDto>> GetCurrentAsync(CancellationToken cancellationToken = default)
     {
         var year = await academicYearRepository.GetAll().AsNoTracking()

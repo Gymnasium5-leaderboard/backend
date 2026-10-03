@@ -47,6 +47,8 @@ if (app.Environment.IsDevelopment())
     await app.Services.MigrateDatabaseAsync();
 }
 
+await app.Services.EnsureCurrentAcademicYearAsync();
+
 app.LogListeningUrls();
 
 await app.RunAsync();
