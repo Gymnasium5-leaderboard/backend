@@ -25,6 +25,28 @@ deduct points; anyone can view the class and student rankings for the current ac
 | **Domain**         | Leaderboard.Domain                                                 |
 | **Infrastructure** | Leaderboard.DAL, Leaderboard.Cache, Leaderboard.BackgroundJobs     |
 
+## Quick Start
+
+Run the API with PostgreSQL and Redis in Docker, no .NET SDK needed.
+
+1. Install [Docker Desktop](https://www.docker.com/) and clone the repo
+2. Create a `.env` file next to `docker-compose.yml`:
+   ```dotenv
+   POSTGRES_PASSWORD=<YOUR-PASSWORD>
+   REDIS_PASSWORD=<YOUR-PASSWORD>
+   JWT_SIGNING_KEY=<AT-LEAST-32-BYTES>
+   FRONTEND_URL=http://localhost:5173
+   ```
+3. Build and start everything:
+   ```bash
+   docker compose up -d --build
+   ```
+4. The API listens on http://localhost:8080 (OpenAPI spec at http://localhost:8080/swagger/v1/swagger.json).
+   Log in via `POST /api/auth/login` with the default owner `admin` / `admin` and change the password right after
+   the first login.
+
+The database schema is created on the first start. Data is kept in Docker volumes, `docker compose down -v` removes it.
+
 ## Getting Started for developers
 
 ### Prerequisites
@@ -56,11 +78,10 @@ deduct points; anyone can view the class and student rankings for the current ac
    ```
    or use your IDE. Migrations are applied and the first academic year is created on startup.
 
-To run everything in Docker instead: `docker compose up -d --build` (API on http://localhost:8080).
-
 ## API Documentation
 
-Swagger UI is available in Development at http://localhost:5180/swagger.
+Swagger UI is available in Development only, at http://localhost:5180/swagger. The OpenAPI spec is served in every
+environment at `/swagger/v1/swagger.json`.
 
 | Controller        | Route                  | Purpose                                          |
 |-------------------|------------------------|--------------------------------------------------|

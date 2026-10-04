@@ -41,12 +41,10 @@ app.UseCors(Startup.CorsPolicyName);
 app.UseMiddleware<ClaimsValidationMiddleware>();
 
 app.UseSwagger();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerUI();
-    await app.Services.MigrateDatabaseAsync();
-}
+if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
 
+// EF Core takes a database lock while migrating, so concurrent instances apply migrations only once
+await app.Services.MigrateDatabaseAsync();
 await app.Services.EnsureCurrentAcademicYearAsync();
 
 app.LogListeningUrls();

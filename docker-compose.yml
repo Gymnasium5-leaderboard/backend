@@ -6,11 +6,14 @@ services:
       dockerfile: Leaderboard.Api/Dockerfile
     container_name: leaderboard-api
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
+      AppStartupSettings__CorsAllowedOrigins__0: ${FRONTEND_URL:-http://localhost:5173}
       ConnectionStrings__PostgresSQL: Server=postgres;Port=5432;Database=leaderboard;User Id=postgres;Password=${POSTGRES_PASSWORD}
       JwtSettings__SigningKey: ${JWT_SIGNING_KEY}
 
@@ -23,6 +26,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: leaderboard
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d leaderboard" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
