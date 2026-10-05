@@ -1,4 +1,5 @@
 using FluentValidation;
+using Leaderboard.Application.Helpers;
 using Leaderboard.Application.Mappings;
 using Leaderboard.Application.Services;
 using Leaderboard.Application.Services.Cache;
@@ -22,6 +23,7 @@ public static class DependencyInjection
     private static void InitServices(this IServiceCollection services)
     {
         services.AddSingleton<IPasswordHasher<LeaderboardOwner>, PasswordHasher<LeaderboardOwner>>();
+        services.AddSingleton<SingleFlight>();
 
         services.Scan(scan => scan.FromAssemblyOf<AuthService>()
             .AddClasses(c => c.InExactNamespaceOf<AuthService>())
@@ -30,6 +32,9 @@ public static class DependencyInjection
 
         services.Decorate<IClassService, CacheClassService>();
         services.Decorate<IAcademicYearService, CacheAcademicYearService>();
+        services.Decorate<IStudentService, CacheStudentService>();
+        services.Decorate<IScoreService, CacheScoreService>();
+        services.Decorate<ILeaderboardService, CacheLeaderboardService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateOwnerValidator>();
     }

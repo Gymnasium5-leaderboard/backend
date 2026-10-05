@@ -8,6 +8,7 @@ namespace Leaderboard.Application.Services.Cache;
 public class CacheAcademicYearService(
     IAcademicYearCacheRepository cacheRepository,
     IClassCacheRepository classCacheRepository,
+    ILeaderboardCacheRepository leaderboardCacheRepository,
     IAcademicYearService inner) : IAcademicYearService
 {
     public async Task<BaseResult<AcademicYearDto>> GetCurrentAsync(CancellationToken cancellationToken = default)
@@ -29,6 +30,7 @@ public class CacheAcademicYearService(
         // Every class has moved up a grade or graduated
         await classCacheRepository.RemoveAllAsync();
         await cacheRepository.RemoveCurrentAsync();
+        await leaderboardCacheRepository.RemoveAllAsync();
 
         return result;
     }

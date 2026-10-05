@@ -97,6 +97,13 @@ public class RedisCacheProvider(IDatabase redisDatabase) : ICacheProvider
         return keys.Count == 0 ? 0 : await redisDatabase.KeyDeleteAsync([.. keys.Distinct()]);
     }
 
+    public Task<long> StringIncrementAsync(string key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        return redisDatabase.StringIncrementAsync(key);
+    }
+
     private static CommandFlags GetCommandFlags(bool fireAndForget)
     {
         return fireAndForget ? CommandFlags.FireAndForget : CommandFlags.None;

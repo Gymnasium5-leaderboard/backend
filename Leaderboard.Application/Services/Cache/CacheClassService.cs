@@ -6,7 +6,10 @@ using Leaderboard.Domain.Settings;
 
 namespace Leaderboard.Application.Services.Cache;
 
-public class CacheClassService(IClassCacheRepository cacheRepository, IClassService inner) : IClassService
+public class CacheClassService(
+    IClassCacheRepository cacheRepository,
+    ILeaderboardCacheRepository leaderboardCacheRepository,
+    IClassService inner) : IClassService
 {
     public async Task<CollectionResult<ClassDto>> GetAllAsync(int? grade,
         CancellationToken cancellationToken = default)
@@ -49,7 +52,10 @@ public class CacheClassService(IClassCacheRepository cacheRepository, IClassServ
         CancellationToken cancellationToken = default)
     {
         var result = await inner.UpdateAsync(id, dto, cancellationToken);
-        if (result.IsSuccess) await cacheRepository.RemoveAsync(id);
+        if (!result.IsSuccess) return result;
+
+        await cacheRepository.RemoveAsync(id);
+        await leaderboardCacheRepository.RemoveAllAsync();
 
         return result;
     }

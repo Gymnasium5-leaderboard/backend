@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Leaderboard.Application.Resources;
+using Leaderboard.Domain.Dtos.Leaderboard;
 using Leaderboard.Domain.Dtos.Score;
 using Leaderboard.Domain.Results;
 using Leaderboard.Tests.Constants;
@@ -154,6 +155,44 @@ public class ScoreServiceTests : SequentialFunctionalTest
         Assert.True(result!.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal([(3L, 12), (4L, 12)], result.Data.Select(x => (x.StudentId, x.Score)));
+    }
+
+    [Fact]
+    public async Task ChangeScore_CachedLeaderboard_ReturnsNewRanksOnNextGet()
+    {
+        //Arrange
+        const long classId = 3;
+        var dto = new ChangeScoreDto(4, 1, null);
+        await HttpClient.GetAsync($"/api/leaderboard/classes/{classId}/students");
+        await HttpClient.GetAsync("/api/leaderboard/classes");
+
+        //Act
+        await HttpClient.ChangeScoreAsync(dto);
+        var students = await HttpClient.GetFromJsonAsync<CollectionResult<StudentLeaderboardEntryDto>>(
+            $"/api/leaderboard/classes/{classId}/students");
+        var classes = await HttpClient.GetFromJsonAsync<CollectionResult<ClassLeaderboardEntryDto>>(
+            "/api/leaderboard/classes");
+
+        //Assert
+        Assert.Equal([(1, 4L, 11), (2, 3L, 10)], students!.Data!.Select(x => (x.Rank, x.StudentId, x.Score)));
+        Assert.Contains((classId, 10.5), classes!.Data!.Select(x => (x.ClassId, x.Score)));
+    }
+
+    [Fact]
+    public async Task ChangeScoreBatch_CachedLeaderboard_ReturnsNewClassScoreOnNextGet()
+    {
+        //Arrange
+        const long classId = 4;
+        var dto = new ChangeScoreBatchDto(null, classId, 2, null);
+        await HttpClient.GetAsync("/api/leaderboard/grades/7/classes");
+
+        //Act
+        await HttpClient.ChangeScoreBatchAsync(dto);
+        var seventhGrade = await HttpClient.GetFromJsonAsync<CollectionResult<ClassLeaderboardEntryDto>>(
+            "/api/leaderboard/grades/7/classes");
+
+        //Assert
+        Assert.Contains((classId, 8.0), seventhGrade!.Data!.Select(x => (x.ClassId, x.Score)));
     }
 
     [Fact]

@@ -40,4 +40,11 @@ public interface ICacheProvider
     /// <param name="cancellationToken">A token to monitor for cancellation requests during the operation.</param>
     /// <returns>The number of keys that were removed from the cache.</returns>
     Task<long> KeysDeleteByPatternsAsync(IEnumerable<string> patterns, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Increments the integer value of the key by one. A missing key is created with 0 first.
+    /// </summary>
+    /// <param name="key">The key of the counter.</param>
+    /// <returns>The value after the increment.</returns>
+    Task<long> StringIncrementAsync(string key);
 }

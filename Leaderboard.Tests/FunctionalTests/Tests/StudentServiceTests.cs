@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Leaderboard.Application.Resources;
+using Leaderboard.Domain.Dtos.Leaderboard;
 using Leaderboard.Domain.Dtos.Student;
 using Leaderboard.Domain.Results;
 using Leaderboard.Tests.FunctionalTests.Base;
@@ -137,6 +138,28 @@ public class StudentServiceTests : SequentialFunctionalTest
         Assert.NotNull(result.Data);
         Assert.Equal("7Б", result.Data.ClassName);
         Assert.Equal(10, await HttpClient.GetScoreAsync(studentId));
+    }
+
+    [Fact]
+    public async Task TransferStudent_CachedLeaderboard_ReturnsStudentInNewClassOnNextGet()
+    {
+        //Arrange
+        const long studentId = 3;
+        const long classId = 4;
+        var dto = new TransferStudentDto(classId);
+        await HttpClient.GetAsync($"/api/leaderboard/classes/{classId}/students");
+        await HttpClient.GetAsync($"/api/leaderboard/students/{studentId}");
+
+        //Act
+        await HttpClient.PatchAsJsonAsync($"/api/student/{studentId}/transfer", dto);
+        var students = await HttpClient.GetFromJsonAsync<CollectionResult<StudentLeaderboardEntryDto>>(
+            $"/api/leaderboard/classes/{classId}/students");
+        var rank = await HttpClient.GetFromJsonAsync<BaseResult<StudentRankDto>>(
+            $"/api/leaderboard/students/{studentId}");
+
+        //Assert
+        Assert.Equal([(1, studentId, 10), (2, 6L, 6)], students!.Data!.Select(x => (x.Rank, x.StudentId, x.Score)));
+        Assert.Equal("7Б", rank!.Data!.ClassName);
     }
 
     [Fact]
