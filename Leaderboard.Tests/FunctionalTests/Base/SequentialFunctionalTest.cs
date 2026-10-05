@@ -6,10 +6,13 @@ namespace Leaderboard.Tests.FunctionalTests.Base;
 
 public class SequentialFunctionalTest(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(factory), IAsyncLifetime
 {
+    private readonly FunctionalTestWebAppFactory _factory = factory;
+
     public async Task InitializeAsync()
     {
         await using var scope = ServiceProvider.CreateAsyncScope();
         ResetDb(scope);
+        await _factory.FlushCacheAsync();
     }
 
     public Task DisposeAsync()

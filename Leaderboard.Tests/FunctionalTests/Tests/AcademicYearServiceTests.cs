@@ -108,6 +108,26 @@ public class AcademicYearServiceTests : SequentialFunctionalTest
     }
 
     [Fact]
+    public async Task StartNew_CachedYearAndClasses_ReturnsNewDataOnNextGet()
+    {
+        //Arrange
+        await HttpClient.GetAsync($"{Url}/current");
+        await HttpClient.GetAsync("/api/class");
+        await HttpClient.GetAsync("/api/class/2");
+
+        //Act
+        await HttpClient.PostAsync(Url, null);
+        var current = await HttpClient.GetFromJsonAsync<BaseResult<AcademicYearDto>>($"{Url}/current");
+        var classes = await HttpClient.GetFromJsonAsync<CollectionResult<ClassDto>>("/api/class");
+        var promoted = await HttpClient.GetFromJsonAsync<BaseResult<ClassDto>>("/api/class/2");
+
+        //Assert
+        Assert.Equal(NewYearTitle, current!.Data!.Title);
+        Assert.Equal(["6В", "8А", "8Б", "11А"], classes!.Data!.Select(x => x.DisplayName));
+        Assert.Equal("11А", promoted!.Data!.DisplayName);
+    }
+
+    [Fact]
     public async Task StartNew_CurrentYearOpen_ReturnsOkAndResetsScores()
     {
         //Act

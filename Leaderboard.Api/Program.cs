@@ -1,6 +1,8 @@
 using Leaderboard.Api;
 using Leaderboard.Api.Middlewares;
 using Leaderboard.Application.DependencyInjection;
+using Leaderboard.Cache.DependencyInjection;
+using Leaderboard.Cache.Settings;
 using Leaderboard.DAL.DependencyInjection;
 using Leaderboard.Domain.Settings;
 using Serilog;
@@ -9,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<BusinessRules>(builder.Configuration.GetSection(nameof(BusinessRules)));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection(nameof(RedisSettings)));
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers();
@@ -21,6 +24,7 @@ builder.Services.AddSwagger();
 builder.Services.AddSerilog(configuration => configuration.ReadFrom.Configuration(builder.Configuration));
 
 builder.Services.AddDataAccessLayer(builder.Configuration);
+builder.Services.AddCache();
 builder.Services.AddApplication();
 
 builder.Services.AddCors(builder.Configuration, builder.Environment);

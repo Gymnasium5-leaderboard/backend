@@ -16,6 +16,8 @@ services:
       AppStartupSettings__CorsAllowedOrigins__0: ${FRONTEND_URL:-http://localhost:5173}
       ConnectionStrings__PostgresSQL: Server=postgres;Port=5432;Database=leaderboard;User Id=postgres;Password=${POSTGRES_PASSWORD}
       JwtSettings__SigningKey: ${JWT_SIGNING_KEY}
+      RedisSettings__Host: redis
+      RedisSettings__Password: ${REDIS_PASSWORD}
 
   postgres:
     image: postgres:17

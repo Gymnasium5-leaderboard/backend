@@ -1,8 +1,10 @@
 using FluentValidation;
 using Leaderboard.Application.Mappings;
 using Leaderboard.Application.Services;
+using Leaderboard.Application.Services.Cache;
 using Leaderboard.Application.Validators;
 using Leaderboard.Domain.Entities;
+using Leaderboard.Domain.Interfaces.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,11 +22,14 @@ public static class DependencyInjection
     private static void InitServices(this IServiceCollection services)
     {
         services.AddSingleton<IPasswordHasher<LeaderboardOwner>, PasswordHasher<LeaderboardOwner>>();
-        
+
         services.Scan(scan => scan.FromAssemblyOf<AuthService>()
             .AddClasses(c => c.InExactNamespaceOf<AuthService>())
             .AsImplementedInterfaces()
             .WithScopedLifetime());
+
+        services.Decorate<IClassService, CacheClassService>();
+        services.Decorate<IAcademicYearService, CacheAcademicYearService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateOwnerValidator>();
     }

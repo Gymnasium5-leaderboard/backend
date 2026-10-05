@@ -10,6 +10,7 @@ deduct points; anyone can view the class and student rankings for the current ac
 * **.NET 10 & C#** - Core framework and language
 * **ASP.NET Core** - HTTP API with versioning and Swagger
 * **Entity Framework Core with PostgreSQL** - Data access (Repository & Unit of Work patterns)
+* **Redis** - Cache of classes and the current academic year, cleared on every change and bypassed while Redis is down
 * **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie
 * **Idempotency** - Score changes accept an `Idempotency-Key` header, so retries never apply points twice
 * **FluentValidation, AutoMapper, Serilog** - Validation, mapping and structured logging
@@ -71,6 +72,7 @@ The database schema is created on the first start. Data is kept in Docker volume
    ```bash
    dotnet user-secrets --project Leaderboard.Api set "ConnectionStrings:PostgresSQL" "Server=localhost;Port=15432;Database=leaderboard;User Id=postgres;Password=<YOUR-PASSWORD>"
    dotnet user-secrets --project Leaderboard.Api set "JwtSettings:SigningKey" "<AT-LEAST-32-BYTES>"
+   dotnet user-secrets --project Leaderboard.Api set "RedisSettings:Password" "<YOUR-PASSWORD>"
    ```
 5. Run the API:
    ```bash
@@ -95,7 +97,7 @@ environment at `/swagger/v1/swagger.json`.
 
 ## Testing
 
-Functional tests start PostgreSQL in Docker via Testcontainers, so Docker must be running.
+Functional tests start PostgreSQL and Redis in Docker via Testcontainers, so Docker must be running.
 
 ```bash
 dotnet test --filter Category=Unit

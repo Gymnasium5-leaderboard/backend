@@ -163,6 +163,42 @@ public class ClassServiceTests : SequentialFunctionalTest
     }
 
     [Fact]
+    public async Task UpdateClass_CachedClass_ReturnsUpdatedClassOnNextGet()
+    {
+        //Arrange
+        const long classId = 3;
+        var dto = new UpdateClassDto(8, 'А');
+        await HttpClient.GetAsync($"/api/class/{classId}");
+        await HttpClient.GetAsync("/api/class");
+
+        //Act
+        await HttpClient.PutAsJsonAsync($"/api/class/{classId}", dto);
+        var schoolClass = await HttpClient.GetFromJsonAsync<BaseResult<ClassDto>>($"/api/class/{classId}");
+        var seventhGrade = await HttpClient.GetFromJsonAsync<CollectionResult<ClassDto>>("/api/class?grade=7");
+        var classes = await HttpClient.GetFromJsonAsync<CollectionResult<ClassDto>>("/api/class");
+
+        //Assert
+        Assert.Equal("8А", schoolClass!.Data!.DisplayName);
+        Assert.Equal(["7Б"], seventhGrade!.Data!.Select(x => x.DisplayName));
+        Assert.Equal(["5В", "7Б", "8А", "10А", "11А"], classes!.Data!.Select(x => x.DisplayName));
+    }
+
+    [Fact]
+    public async Task CreateClass_CachedEmptyGrade_ReturnsNewClassOnNextGet()
+    {
+        //Arrange
+        var dto = new CreateClassDto(9, 'А');
+        await HttpClient.GetAsync("/api/class?grade=9");
+
+        //Act
+        await HttpClient.PostAsJsonAsync("/api/class", dto);
+        var ninthGrade = await HttpClient.GetFromJsonAsync<CollectionResult<ClassDto>>("/api/class?grade=9");
+
+        //Assert
+        Assert.Equal(["9А"], ninthGrade!.Data!.Select(x => x.DisplayName));
+    }
+
+    [Fact]
     public async Task UpdateClass_NameOfAnotherClass_ReturnsConflict()
     {
         //Arrange
