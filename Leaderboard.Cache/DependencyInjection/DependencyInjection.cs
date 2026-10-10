@@ -23,7 +23,11 @@ public static class DependencyInjection
                 EndPoints = { { redisSettings.Host, redisSettings.Port } },
                 Password = redisSettings.Password,
                 // The API keeps working on PostgreSQL while Redis is down and reconnects in the background
-                AbortOnConnectFail = false
+                AbortOnConnectFail = false,
+                BacklogPolicy = BacklogPolicy.FailFast,
+                ConnectTimeout = 1000,
+                AsyncTimeout = 1000,
+                SyncTimeout = 1000
             };
 
             var multiplexer = ConnectionMultiplexer.Connect(configuration);
