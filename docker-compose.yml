@@ -1,9 +1,6 @@
 services:
   leaderboard.api:
     image: maratkk/gymnasium5-leaderboard_backend:latest
-    build:
-      context: .
-      dockerfile: Leaderboard.Api/Dockerfile
     container_name: leaderboard-api
     depends_on:
       postgres:
