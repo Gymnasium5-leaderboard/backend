@@ -1,7 +1,9 @@
 using Leaderboard.Cache.Interfaces;
+using Leaderboard.Cache.Notifiers;
 using Leaderboard.Cache.Providers;
 using Leaderboard.Cache.Repositories;
 using Leaderboard.Cache.Settings;
+using Leaderboard.Domain.Interfaces.Notifier;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -38,6 +40,7 @@ public static class DependencyInjection
 
         services.InitProviders();
         services.InitRepositories();
+        services.InitNotifiers();
     }
 
     /// <summary>
@@ -72,6 +75,14 @@ public static class DependencyInjection
     private static void InitProviders(this IServiceCollection services)
     {
         services.AddScoped<ICacheProvider, RedisCacheProvider>();
+    }
+
+    private static void InitNotifiers(this IServiceCollection services)
+    {
+        // One instance holds the subscribers and the Redis subscription, which is made on startup
+        services.AddSingleton<ILeaderboardNotifier, LeaderboardNotifier>();
+        services.AddHostedService(provider =>
+            (LeaderboardNotifier)provider.GetRequiredService<ILeaderboardNotifier>());
     }
 
     private static void InitRepositories(this IServiceCollection services)

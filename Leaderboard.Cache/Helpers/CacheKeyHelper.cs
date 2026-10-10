@@ -10,6 +10,7 @@ public static class CacheKeyHelper
     private const string GradeClassesLeaderboardPattern = "leaderboard:{0}:grade:{1}:classes";
     private const string ClassStudentsLeaderboardPattern = "leaderboard:{0}:class:{1}:students";
     private const string StudentRankPattern = "leaderboard:{0}:student:{1}";
+    private const string LeaderboardChangedChannel = "leaderboard:changed";
     private const string AllGradesPlaceholder = "all";
     private const string AnyPlaceholder = "*";
 
@@ -56,5 +57,10 @@ public static class CacheKeyHelper
     public static string GetStudentRankKey(long version, long studentId)
     {
         return string.Format(StudentRankPattern, version, studentId);
+    }
+
+    public static string GetLeaderboardChangedChannel()
+    {
+        return LeaderboardChangedChannel;
     }
 }

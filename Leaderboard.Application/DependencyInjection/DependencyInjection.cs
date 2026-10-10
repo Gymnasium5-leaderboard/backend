@@ -3,6 +3,7 @@ using Leaderboard.Application.Helpers;
 using Leaderboard.Application.Mappings;
 using Leaderboard.Application.Services;
 using Leaderboard.Application.Services.Cache;
+using Leaderboard.Application.Services.Notify;
 using Leaderboard.Application.Validators;
 using Leaderboard.Domain.Entities;
 using Leaderboard.Domain.Interfaces.Service;
@@ -35,6 +36,11 @@ public static class DependencyInjection
         services.Decorate<IStudentService, CacheStudentService>();
         services.Decorate<IScoreService, CacheScoreService>();
         services.Decorate<ILeaderboardService, CacheLeaderboardService>();
+        
+        services.Decorate<IClassService, NotifyClassService>();
+        services.Decorate<IAcademicYearService, NotifyAcademicYearService>();
+        services.Decorate<IStudentService, NotifyStudentService>();
+        services.Decorate<IScoreService, NotifyScoreService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateOwnerValidator>();
     }

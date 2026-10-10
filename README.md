@@ -10,7 +10,10 @@ deduct points; anyone can view the class and student rankings for the current ac
 * **.NET 10 & C#** - Core framework and language
 * **ASP.NET Core** - HTTP API with versioning and Swagger
 * **Entity Framework Core with PostgreSQL** - Data access (Repository & Unit of Work patterns)
-* **Redis** - Cache of classes and the current academic year, cleared on every change and bypassed while Redis is down
+* **Redis** - Cache of classes, the current academic year and leaderboards, cleared on every change and bypassed while
+  Redis is down
+* **Server-sent events** - `/api/leaderboard/events` tells clients when leaderboards change, across all API instances
+  via Redis pub/sub
 * **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie
 * **Idempotency** - Score changes accept an `Idempotency-Key` header, so retries never apply points twice
 * **FluentValidation, AutoMapper, Serilog** - Validation, mapping and structured logging
@@ -85,15 +88,15 @@ The database schema is created on the first start. Data is kept in Docker volume
 Swagger UI is available in Development only, at http://localhost:5180/swagger. The OpenAPI spec is served in every
 environment at `/swagger/v1/swagger.json`.
 
-| Controller        | Route                  | Purpose                                          |
-|-------------------|------------------------|--------------------------------------------------|
-| Auth              | `/api/auth`            | Login, refresh, logout                           |
-| Owner             | `/api/owner`           | Owner accounts and password change               |
-| Class             | `/api/class`           | Classes (filter by `?grade=`)                    |
-| Student           | `/api/student`         | Students, batch create, transfer, deactivate     |
-| Score             | `/api/score`           | Award or deduct points, history                  |
-| Leaderboard       | `/api/leaderboard`     | Class and student rankings                       |
-| AcademicYear      | `/api/academicyear`    | Current year and starting a new one (graduation) |
+| Controller   | Route               | Purpose                                          |
+|--------------|---------------------|--------------------------------------------------|
+| Auth         | `/api/auth`         | Login, refresh, logout                           |
+| Owner        | `/api/owner`        | Owner accounts and password change               |
+| Class        | `/api/class`        | Classes (filter by `?grade=`)                    |
+| Student      | `/api/student`      | Students, batch create, transfer, deactivate     |
+| Score        | `/api/score`        | Award or deduct points, history                  |
+| Leaderboard  | `/api/leaderboard`  | Class and student rankings, change events (SSE)  |
+| AcademicYear | `/api/academicyear` | Current year and starting a new one (graduation) |
 
 ## Testing
 
