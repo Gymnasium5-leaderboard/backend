@@ -1,6 +1,7 @@
 using Leaderboard.Api;
 using Leaderboard.Api.Middlewares;
 using Leaderboard.Application.DependencyInjection;
+using Leaderboard.BackgroundJobs.DependencyInjection;
 using Leaderboard.Cache.DependencyInjection;
 using Leaderboard.Cache.Settings;
 using Leaderboard.DAL.DependencyInjection;
@@ -26,6 +27,7 @@ builder.Services.AddSerilog(configuration => configuration.ReadFrom.Configuratio
 builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddCache();
 builder.Services.AddApplication();
+builder.Services.AddBackgroundJobs();
 
 builder.Services.AddCors(builder.Configuration, builder.Environment);
 

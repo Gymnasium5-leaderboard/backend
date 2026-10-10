@@ -14,7 +14,8 @@ deduct points; anyone can view the class and student rankings for the current ac
   Redis is down
 * **Server-sent events** - `/api/leaderboard/events` tells clients when leaderboards change, across all API instances
   via Redis pub/sub
-* **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie
+* **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie;
+  expired refresh tokens are removed by a daily background job
 * **Idempotency** - Score changes accept an `Idempotency-Key` header, so retries never apply points twice
 * **FluentValidation, AutoMapper, Serilog** - Validation, mapping and structured logging
 * **Clean Architecture** - Layered separation (Domain, Application, Infrastructure, Presentation)

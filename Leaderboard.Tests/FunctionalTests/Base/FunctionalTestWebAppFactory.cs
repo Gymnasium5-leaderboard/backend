@@ -1,3 +1,4 @@
+using Leaderboard.BackgroundJobs.Jobs;
 using Leaderboard.Tests.FunctionalTests.Configurations;
 using Leaderboard.Tests.FunctionalTests.Helpers;
 using Microsoft.AspNetCore.Hosting;
@@ -57,6 +58,9 @@ public class FunctionalTestWebAppFactory : WebApplicationFactory<Program>, IAsyn
 
         builder.ConfigureTestServices(services =>
         {
+            // The job removes expired tokens on startup, at the same time as a test resets the database
+            services.Remove(services.Single(x => x.ImplementationType == typeof(RefreshTokenCleanupService)));
+
             using var serviceProvider = services.BuildServiceProvider();
             using var scope = serviceProvider.CreateAsyncScope();
             scope.PrepPopulation();
