@@ -215,7 +215,7 @@ public static class Startup
     {
         app.UseRequestLocalization(options =>
         {
-            string[] supportedCultures = ["en", "ru-by"];
+            string[] supportedCultures = ["en", "ru"];
             options.SetDefaultCulture(supportedCultures[0]);
             options.AddSupportedCultures(supportedCultures);
             options.AddSupportedUICultures(supportedCultures);
