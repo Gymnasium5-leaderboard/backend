@@ -41,9 +41,6 @@ public class ClassController(IClassService classService) : BaseController
     /// <summary>
     ///     Creates a class.
     /// </summary>
-    /// <response code="201">Class created</response>
-    /// <response code="400">Invalid grade or letter</response>
-    /// <response code="409">An active class with this grade and letter already exists</response>
     [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -60,10 +57,6 @@ public class ClassController(IClassService classService) : BaseController
     /// <summary>
     ///     Changes the grade or letter of an active class.
     /// </summary>
-    /// <response code="200">Class updated</response>
-    /// <response code="400">Invalid grade or letter</response>
-    /// <response code="404">Class not found or graduated</response>
-    /// <response code="409">An active class with this grade and letter already exists</response>
     [Authorize]
     [HttpPut("{id:long}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

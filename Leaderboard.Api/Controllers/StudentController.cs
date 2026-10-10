@@ -43,9 +43,6 @@ public class StudentController(IStudentService studentService) : BaseController
     /// <summary>
     ///     Adds a student.
     /// </summary>
-    /// <response code="201">Student added</response>
-    /// <response code="400">Invalid name</response>
-    /// <response code="404">Class not found or graduated</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,9 +57,6 @@ public class StudentController(IStudentService studentService) : BaseController
     /// <summary>
     ///     Adds a list of students. If any of them is invalid, none is added.
     /// </summary>
-    /// <response code="201">Students added</response>
-    /// <response code="400">Empty list or invalid name</response>
-    /// <response code="404">Class not found or graduated</response>
     [HttpPost("batch")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -77,9 +71,6 @@ public class StudentController(IStudentService studentService) : BaseController
     /// <summary>
     ///     Changes the first and last name of an active student.
     /// </summary>
-    /// <response code="200">Student updated</response>
-    /// <response code="400">Invalid name</response>
-    /// <response code="404">Student not found or left the school</response>
     [HttpPut("{id:long}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -94,8 +85,6 @@ public class StudentController(IStudentService studentService) : BaseController
     /// <summary>
     ///     Moves an active student to another class. The student keeps their scores.
     /// </summary>
-    /// <response code="200">Student moved</response>
-    /// <response code="404">Student or class not found</response>
     [HttpPatch("{id:long}/transfer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -109,8 +98,6 @@ public class StudentController(IStudentService studentService) : BaseController
     /// <summary>
     ///     Marks a student as left the school. The student leaves the leaderboards, the score history is kept.
     /// </summary>
-    /// <response code="204">Student deactivated</response>
-    /// <response code="404">Student not found or already left the school</response>
     [HttpPatch("{id:long}/deactivate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

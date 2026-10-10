@@ -29,9 +29,6 @@ public class AcademicYearController(IAcademicYearService academicYearService) : 
     ///     Starts a new academic year: closes the current one, graduates 11th classes and moves the other classes one
     ///     grade up. Scores start from zero. Cannot be undone.
     /// </summary>
-    /// <response code="200">New year started</response>
-    /// <response code="404">Current academic year not found</response>
-    /// <response code="409">The year was already changed by another request</response>
     [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

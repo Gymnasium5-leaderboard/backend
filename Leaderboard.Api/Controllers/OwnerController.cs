@@ -24,6 +24,7 @@ public class OwnerController(
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<BaseResult<OwnerDto>>> CreateAsync(CreateOwnerDto dto,
         CancellationToken cancellationToken)
@@ -35,7 +36,6 @@ public class OwnerController(
     /// <summary>
     ///     Gets the current owner's profile.
     /// </summary>
-    /// <response code="200">Profile</response>
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<BaseResult<OwnerDto>>> GetMeAsync(CancellationToken cancellationToken)
@@ -47,8 +47,6 @@ public class OwnerController(
     /// <summary>
     ///     Updates the current owner's first and last name.
     /// </summary>
-    /// <response code="200">Profile updated</response>
-    /// <response code="400">Invalid name</response>
     [HttpPut("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,8 +60,6 @@ public class OwnerController(
     /// <summary>
     ///     Changes the current owner's password. All sessions of the owner are signed out.
     /// </summary>
-    /// <response code="204">Password changed</response>
-    /// <response code="400">The current password is wrong or the new one is invalid</response>
     [HttpPut("me/password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

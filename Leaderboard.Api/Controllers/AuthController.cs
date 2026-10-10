@@ -18,8 +18,6 @@ public class AuthController(IAuthService authService) : BaseController
     /// <summary>
     ///     Signs in with login and password.
     /// </summary>
-    /// <response code="200">Signed in</response>
-    /// <response code="401">Invalid login or password</response>
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -33,8 +31,6 @@ public class AuthController(IAuthService authService) : BaseController
     /// <summary>
     ///     Issues a new token pair for the refresh token cookie. The old refresh token stops working.
     /// </summary>
-    /// <response code="200">Tokens refreshed</response>
-    /// <response code="401">The refresh token is missing, invalid, revoked or expired</response>
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -51,7 +47,6 @@ public class AuthController(IAuthService authService) : BaseController
     /// <summary>
     ///     Signs out: revokes the refresh token and deletes its cookie.
     /// </summary>
-    /// <response code="204">Signed out</response>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult<BaseResult>> LogoutAsync(CancellationToken cancellationToken)
