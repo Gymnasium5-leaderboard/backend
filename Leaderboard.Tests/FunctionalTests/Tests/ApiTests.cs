@@ -36,6 +36,23 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
     }
 
     [Fact]
+    public async Task PostScore_MissingAuthTokenFromOtherOrigin_ReturnsUnauthorizedWithCorsHeaders()
+    {
+        //Arrange
+        var dto = new ChangeScoreDto(1, 5, null);
+        using var request = new HttpRequestMessage(HttpMethod.Post, ProtectedUrl);
+        request.Headers.Add("Origin", "http://localhost:5173");
+        request.Content = JsonContent.Create(dto);
+
+        //Act
+        var response = await HttpClient.SendAsync(request);
+
+        //Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.True(response.Headers.Contains("Access-Control-Allow-Origin"));
+    }
+
+    [Fact]
     public async Task PostScore_InvalidClaims_ReturnsUnauthorized()
     {
         //Arrange

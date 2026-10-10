@@ -42,9 +42,9 @@ app.UseRouting();
 app.MapControllers();
 app.MapHealthEndpoint();
 app.UseLocalization();
+app.UseCors(Startup.CorsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors(Startup.CorsPolicyName);
 
 app.UseMiddleware<ClaimsValidationMiddleware>();
 
