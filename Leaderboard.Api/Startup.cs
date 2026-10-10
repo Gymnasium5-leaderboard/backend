@@ -2,16 +2,21 @@
 using System.Security;
 using System.Text;
 using Asp.Versioning;
+using HealthChecks.UI.Client;
 using Leaderboard.Application.Providers;
+using Leaderboard.DAL;
 using Leaderboard.Domain.Interfaces.Provider;
 using Leaderboard.Domain.Interfaces.Service;
 using Leaderboard.Domain.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using StackExchange.Redis;
 
 namespace Leaderboard.Api;
 
@@ -22,6 +27,7 @@ public static class Startup
     private const int MinSigningKeyBytes = 32;
 
     public const string CorsPolicyName = "DefaultCorsPolicy";
+    public const string HealthPath = "/health";
 
     /// <summary>Logs all URLs on which the application is listening when it starts.</summary>
     /// <param name="app">The web application to which the middleware is added.</param>
@@ -70,6 +76,32 @@ public static class Startup
         services.AddAuthorization();
 
         services.AddSingleton<ITokenProvider, JwtTokenProvider>();
+    }
+
+    /// <summary>
+    ///     Adds health checks of PostgreSQL and Redis.
+    /// </summary>
+    /// <param name="services">The service collection to which health check services are added.</param>
+    public static void AddDependencyHealthChecks(this IServiceCollection services)
+    {
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>("postgres")
+            // The API works without Redis, so its failure only degrades the status. The check reuses the app's
+            // connection instead of opening its own
+            .AddRedis(provider => provider.GetRequiredService<IConnectionMultiplexer>(), "redis",
+                HealthStatus.Degraded);
+    }
+
+    /// <summary>
+    ///     Maps the health endpoint: 200 for Healthy and Degraded, 503 for Unhealthy, with the status of each check.
+    /// </summary>
+    /// <param name="app">The web application to which the endpoint is added.</param>
+    public static void MapHealthEndpoint(this WebApplication app)
+    {
+        app.MapHealthChecks(HealthPath, new HealthCheckOptions
+        {
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
     }
 
     /// <summary>

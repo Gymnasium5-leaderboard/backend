@@ -17,6 +17,8 @@ deduct points; anyone can view the class and student rankings for the current ac
 * **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie;
   expired refresh tokens are removed by a daily background job
 * **Idempotency** - Score changes accept an `Idempotency-Key` header, so retries never apply points twice
+* **Health checks** - `/health` reports PostgreSQL and Redis; Redis down gives `Degraded`, not `Unhealthy`, since the
+  API works without it
 * **FluentValidation, AutoMapper, Serilog** - Validation, mapping and structured logging
 * **Clean Architecture** - Layered separation (Domain, Application, Infrastructure, Presentation)
 * **xUnit, Moq, Testcontainers & Coverlet** - Unit and functional tests against a real PostgreSQL with code coverage

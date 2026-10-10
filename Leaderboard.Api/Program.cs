@@ -28,6 +28,7 @@ builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddCache();
 builder.Services.AddApplication();
 builder.Services.AddBackgroundJobs();
+builder.Services.AddDependencyHealthChecks();
 
 builder.Services.AddCors(builder.Configuration, builder.Environment);
 
@@ -39,6 +40,7 @@ app.UseRequestLogging();
 
 app.UseRouting();
 app.MapControllers();
+app.MapHealthEndpoint();
 app.UseLocalization();
 app.UseAuthentication();
 app.UseAuthorization();
