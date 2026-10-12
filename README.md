@@ -46,7 +46,7 @@ Run the API with PostgreSQL and Redis in Docker, no .NET SDK needed.
    ```
 3. Build and start everything:
    ```bash
-   docker compose up -d --build
+   docker compose up -d
    ```
 4. The API listens on http://localhost:8080 (OpenAPI spec at http://localhost:8080/swagger/v1/swagger.json).
    Log in via `POST /api/auth/login` with the default owner `admin` / `admin` and change the password right after
