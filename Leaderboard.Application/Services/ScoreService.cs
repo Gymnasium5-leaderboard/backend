@@ -21,6 +21,7 @@ public class ScoreService(
     IUnitOfWork unitOfWork,
     IBaseRepository<SchoolClass> classRepository,
     IBaseRepository<AcademicYear> academicYearRepository,
+    IBaseRepository<Category> categoryRepository,
     IValidator<IValidatableScore> scoreValidator,
     IValidator<ChangeScoreBatchDto> batchValidator,
     IValidator<ScoreHistoryQueryDto> historyValidator,
@@ -35,7 +36,7 @@ public class ScoreService(
         var (isValid, errorMessage) = await scoreValidator.ValidateWithMessageAsync(dto, cancellationToken);
         if (!isValid) return BaseResult<ScoreChangedDto>.Failure(errorMessage, (int)ErrorCodes.InvalidProperty);
 
-        var result = await ChangeScoresAsync(ownerId, [dto.StudentId], dto.Delta, dto.Description,
+        var result = await ChangeScoresAsync(ownerId, [dto.StudentId], dto.CategoryId, dto.Delta, dto.Description,
             _ => idempotencyKey, cancellationToken);
         if (!result.IsSuccess) return BaseResult<ScoreChangedDto>.Failure(result.ErrorMessage!, result.ErrorCode);
 
@@ -70,7 +71,7 @@ public class ScoreService(
         }
 
         // Each row gets its own key derived from the batch key, so a repeated batch hits the UNIQUE index
-        return await ChangeScoresAsync(ownerId, studentIds, dto.Delta, dto.Description,
+        return await ChangeScoresAsync(ownerId, studentIds, dto.CategoryId, dto.Delta, dto.Description,
             studentId => idempotencyKey == null
                 ? null
                 : GuidHelpers.CreateFromName(idempotencyKey.Value, studentId.ToString()),
@@ -88,14 +89,18 @@ public class ScoreService(
             return PagedResult<ScoreTransactionDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
 
-        // Students who left the school are included: their history is kept
+        // Students who left the school and archived categories are included: their history is kept
         var transactions = unitOfWork.ScoreTransactions.GetAll().AsNoTracking()
             .Where(x => x.AcademicYearId == yearId
                         && (query.StudentId == null || x.StudentId == query.StudentId)
-                        && (query.ClassId == null || x.Student.ClassId == query.ClassId));
+                        && (query.ClassId == null || x.Student.ClassId == query.ClassId)
+                        && (query.CategoryId == null || x.CategoryId == query.CategoryId));
 
         var totalCount = await transactions.CountAsync(cancellationToken);
         var page = await transactions
+            .Include(x => x.Student)
+            .Include(x => x.Owner)
+            .Include(x => x.Category)
             .OrderByDescending(x => x.Id)
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
@@ -110,13 +115,22 @@ public class ScoreService(
     ///     by a lock on the student id, so concurrent write-offs cannot both pass the negative score check.
     /// </summary>
     private async Task<CollectionResult<ScoreChangedDto>> ChangeScoresAsync(long ownerId,
-        IReadOnlyCollection<long> studentIds, int delta, string? description, Func<long, Guid?> getIdempotencyKey,
-        CancellationToken cancellationToken)
+        IReadOnlyCollection<long> studentIds, long categoryId, int delta, string? description,
+        Func<long, Guid?> getIdempotencyKey, CancellationToken cancellationToken)
     {
         var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
         if (yearId == null)
             return CollectionResult<ScoreChangedDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
+
+        var category = await categoryRepository.GetAll()
+            .FirstOrDefaultAsync(x => x.Id == categoryId, cancellationToken);
+        if (category == null)
+            return CollectionResult<ScoreChangedDto>.Failure(ErrorMessage.CategoryNotFound,
+                (int)ErrorCodes.CategoryNotFound);
+        if (category.IsArchived)
+            return CollectionResult<ScoreChangedDto>.Failure(ErrorMessage.CategoryArchived,
+                (int)ErrorCodes.CategoryArchived);
 
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         await unitOfWork.AcquireLockAsync(studentIds, cancellationToken);
@@ -138,10 +152,14 @@ public class ScoreService(
         var orderedIds = studentIds.Order().ToArray();
 
         var scores = await GetScoresAsync(yearId.Value, orderedIds, cancellationToken);
+        var categoryScores = await GetCategoryScoresAsync(yearId.Value, orderedIds, [categoryId], cancellationToken);
 
+        // Other categories do not change, so only the changed one is checked
         if (!_businessRules.AllowNegativeScore)
         {
-            var failedIds = orderedIds.Where(id => scores.GetValueOrDefault(id) + delta < 0).ToArray();
+            var failedIds = orderedIds
+                .Where(id => categoryScores.GetValueOrDefault((id, categoryId)) + delta < 0)
+                .ToArray();
             if (failedIds.Length > 0) return ScoreWouldBeNegative(failedIds);
         }
 
@@ -151,6 +169,7 @@ public class ScoreService(
             AcademicYearId = yearId.Value,
             StudentId = studentId,
             OwnerId = ownerId,
+            CategoryId = categoryId,
             Delta = delta,
             Description = description,
             IdempotencyKey = getIdempotencyKey(studentId),
@@ -176,8 +195,9 @@ public class ScoreService(
         await transaction.CommitAsync(cancellationToken);
 
         return CollectionResult<ScoreChangedDto>.Success(newTransactions
-            .Select(x => new ScoreChangedDto(x.Id, x.StudentId, x.Delta,
-                scores.GetValueOrDefault(x.StudentId) + x.Delta, x.CreatedAt))
+            .Select(x => new ScoreChangedDto(x.Id, x.StudentId, x.CategoryId, x.Delta,
+                scores.GetValueOrDefault(x.StudentId) + x.Delta,
+                categoryScores.GetValueOrDefault((x.StudentId, x.CategoryId)) + x.Delta, x.CreatedAt))
             .ToArray());
     }
 
@@ -189,10 +209,14 @@ public class ScoreService(
             .OrderBy(x => x.StudentId)
             .ToArrayAsync(cancellationToken);
 
-        var scores = await GetScoresAsync(yearId, existing.Select(x => x.StudentId).ToArray(), cancellationToken);
+        var studentIds = existing.Select(x => x.StudentId).ToArray();
+        var scores = await GetScoresAsync(yearId, studentIds, cancellationToken);
+        var categoryScores = await GetCategoryScoresAsync(yearId, studentIds,
+            existing.Select(x => x.CategoryId).Distinct().ToArray(), cancellationToken);
 
         return existing
-            .Select(x => new ScoreChangedDto(x.Id, x.StudentId, x.Delta, scores.GetValueOrDefault(x.StudentId),
+            .Select(x => new ScoreChangedDto(x.Id, x.StudentId, x.CategoryId, x.Delta,
+                scores.GetValueOrDefault(x.StudentId), categoryScores.GetValueOrDefault((x.StudentId, x.CategoryId)),
                 x.CreatedAt))
             .ToArray();
     }
@@ -201,10 +225,21 @@ public class ScoreService(
         CancellationToken cancellationToken)
     {
         return unitOfWork.ScoreTransactions.GetAll().AsNoTracking()
-            .Where(x => x.AcademicYearId == yearId && studentIds.Contains(x.StudentId))
+            .Where(x => x.AcademicYearId == yearId && studentIds.Contains(x.StudentId) && !x.Category.IsArchived)
             .GroupBy(x => x.StudentId)
             .Select(g => new { StudentId = g.Key, Score = g.Sum(x => x.Delta) })
             .ToDictionaryAsync(x => x.StudentId, x => x.Score, cancellationToken);
+    }
+
+    private Task<Dictionary<(long StudentId, long CategoryId), int>> GetCategoryScoresAsync(long yearId,
+        long[] studentIds, long[] categoryIds, CancellationToken cancellationToken)
+    {
+        return unitOfWork.ScoreTransactions.GetAll().AsNoTracking()
+            .Where(x => x.AcademicYearId == yearId && studentIds.Contains(x.StudentId) &&
+                        categoryIds.Contains(x.CategoryId))
+            .GroupBy(x => new { x.StudentId, x.CategoryId })
+            .Select(g => new { g.Key.StudentId, g.Key.CategoryId, Score = g.Sum(x => x.Delta) })
+            .ToDictionaryAsync(x => (x.StudentId, x.CategoryId), x => x.Score, cancellationToken);
     }
 
     private static CollectionResult<ScoreChangedDto> StudentsNotFound(IEnumerable<long> studentIds)

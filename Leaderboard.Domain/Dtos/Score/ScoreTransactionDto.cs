@@ -8,6 +8,9 @@ public record ScoreTransactionDto(
     long OwnerId,
     string OwnerFirstName,
     string OwnerLastName,
+    long CategoryId,
+    string CategoryName,
+    bool CategoryIsArchived,
     int Delta,
     string? Description,
     DateTime CreatedAt);

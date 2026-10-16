@@ -6,6 +6,7 @@ public static class EntityConstraints
     public const int MaxGrade = 11;
 
     public const int NameMaxLength = 50;
+    public const int CategoryNameMaxLength = 50;
     public const int LoginMinLength = 3;
     public const int LoginMaxLength = 50;
     public const int PasswordMinLength = 8;

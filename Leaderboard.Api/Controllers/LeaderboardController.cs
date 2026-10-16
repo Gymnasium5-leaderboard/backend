@@ -28,47 +28,47 @@ public class LeaderboardController(
     private static readonly TimeSpan PingInterval = TimeSpan.FromSeconds(15);
 
     /// <summary>
-    ///     Gets all classes of the school by average score.
+    ///     Gets all classes of the school by average score, over all categories or one.
     /// </summary>
     [HttpGet("classes")]
     public async Task<ActionResult<CollectionResult<ClassLeaderboardEntryDto>>> GetSchoolClassesAsync(
-        CancellationToken cancellationToken)
+        long? categoryId, CancellationToken cancellationToken)
     {
-        var result = await leaderboardService.GetSchoolClassesAsync(cancellationToken);
+        var result = await leaderboardService.GetSchoolClassesAsync(categoryId, cancellationToken);
         return result.ToActionResult();
     }
 
     /// <summary>
-    ///     Gets classes of one grade by average score.
+    ///     Gets classes of one grade by average score, over all categories or one.
     /// </summary>
     [HttpGet("grades/{grade:int}/classes")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CollectionResult<ClassLeaderboardEntryDto>>> GetGradeClassesAsync(int grade,
-        CancellationToken cancellationToken)
+        long? categoryId, CancellationToken cancellationToken)
     {
-        var result = await leaderboardService.GetGradeClassesAsync(grade, cancellationToken);
+        var result = await leaderboardService.GetGradeClassesAsync(grade, categoryId, cancellationToken);
         return result.ToActionResult();
     }
 
     /// <summary>
-    ///     Gets students of one class by score.
+    ///     Gets students of one class by score, over all categories or one.
     /// </summary>
     [HttpGet("classes/{classId:long}/students")]
     public async Task<ActionResult<CollectionResult<StudentLeaderboardEntryDto>>> GetClassStudentsAsync(
-        long classId, CancellationToken cancellationToken)
+        long classId, long? categoryId, CancellationToken cancellationToken)
     {
-        var result = await leaderboardService.GetClassStudentsAsync(classId, cancellationToken);
+        var result = await leaderboardService.GetClassStudentsAsync(classId, categoryId, cancellationToken);
         return result.ToActionResult();
     }
 
     /// <summary>
-    ///     Gets rank and score of a student among the classmates.
+    ///     Gets rank and score of a student among the classmates, over all categories or one.
     /// </summary>
     [HttpGet("students/{studentId:long}")]
     public async Task<ActionResult<BaseResult<StudentRankDto>>> GetStudentRankAsync(long studentId,
-        CancellationToken cancellationToken)
+        long? categoryId, CancellationToken cancellationToken)
     {
-        var result = await leaderboardService.GetStudentRankAsync(studentId, cancellationToken);
+        var result = await leaderboardService.GetStudentRankAsync(studentId, categoryId, cancellationToken);
         return result.ToActionResult();
     }
 

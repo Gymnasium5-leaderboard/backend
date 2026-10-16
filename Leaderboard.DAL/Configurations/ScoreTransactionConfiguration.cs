@@ -17,7 +17,7 @@ public class ScoreTransactionConfiguration : IEntityTypeConfiguration<ScoreTrans
         // NULLs are distinct in PostgreSQL, so requests without a key never conflict
         builder.HasIndex(x => x.IdempotencyKey).IsUnique();
         builder.HasIndex(x => new { x.AcademicYearId, x.StudentId })
-            .IncludeProperties(x => new { x.Delta, x.CreatedAt });
+            .IncludeProperties(x => new { x.Delta, x.CreatedAt, x.CategoryId });
 
         builder.HasOne(x => x.AcademicYear)
             .WithMany()
@@ -31,7 +31,13 @@ public class ScoreTransactionConfiguration : IEntityTypeConfiguration<ScoreTrans
             .WithMany()
             .HasForeignKey(x=>x.OwnerId)
             .HasPrincipalKey(x=>x.Id);
-        
+
+        builder.HasOne(x => x.Category)
+            .WithMany()
+            .HasForeignKey(x => x.CategoryId)
+            .HasPrincipalKey(x => x.Id)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.ToTable(t => t.HasCheckConstraint("CK_ScoreTransactions_Delta", "\"Delta\" <> 0"));
     }
 }

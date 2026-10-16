@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Leaderboard.DAL.Migrations
 {
     /// <inheritdoc />
@@ -25,6 +27,21 @@ namespace Leaderboard.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AcademicYear", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'6', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    IsArchived = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,6 +134,7 @@ namespace Leaderboard.DAL.Migrations
                     AcademicYearId = table.Column<long>(type: "bigint", nullable: false),
                     StudentId = table.Column<long>(type: "bigint", nullable: false),
                     OwnerId = table.Column<long>(type: "bigint", nullable: false),
+                    CategoryId = table.Column<long>(type: "bigint", nullable: false),
                     Delta = table.Column<int>(type: "integer", nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     IdempotencyKey = table.Column<Guid>(type: "uuid", nullable: true),
@@ -133,6 +151,12 @@ namespace Leaderboard.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_ScoreTransaction_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ScoreTransaction_LeaderboardOwner_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "LeaderboardOwner",
@@ -144,6 +168,18 @@ namespace Leaderboard.DAL.Migrations
                         principalTable: "Student",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Category",
+                columns: new[] { "Id", "IsArchived", "Name" },
+                values: new object[,]
+                {
+                    { 1L, false, "Учёба" },
+                    { 2L, false, "Спорт" },
+                    { 3L, false, "Творчество" },
+                    { 4L, false, "Общественная деятельность" },
+                    { 5L, false, "Военно-патриотическая деятельность" }
                 });
 
             migrationBuilder.InsertData(
@@ -185,7 +221,12 @@ namespace Leaderboard.DAL.Migrations
                 name: "IX_ScoreTransaction_AcademicYearId_StudentId",
                 table: "ScoreTransaction",
                 columns: new[] { "AcademicYearId", "StudentId" })
-                .Annotation("Npgsql:IndexInclude", new[] { "Delta", "CreatedAt" });
+                .Annotation("Npgsql:IndexInclude", new[] { "Delta", "CreatedAt", "CategoryId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ScoreTransaction_CategoryId",
+                table: "ScoreTransaction",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScoreTransaction_IdempotencyKey",
@@ -211,11 +252,16 @@ namespace Leaderboard.DAL.Migrations
             // Only one current (not finished) academic year
             migrationBuilder.Sql(
                 "CREATE UNIQUE INDEX \"IX_AcademicYear_Current\" ON \"AcademicYear\" ((true)) WHERE \"FinishedAt\" IS NULL;");
+
+            // Category names are unique ignoring case, archived ones too
+            migrationBuilder.Sql(
+                "CREATE UNIQUE INDEX \"IX_Category_Name_Lower\" ON \"Category\" (lower(\"Name\"));");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DROP INDEX \"IX_Category_Name_Lower\";");
             migrationBuilder.Sql("DROP INDEX \"IX_AcademicYear_Current\";");
 
             migrationBuilder.DropTable(
@@ -226,6 +272,9 @@ namespace Leaderboard.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "AcademicYear");
+
+            migrationBuilder.DropTable(
+                name: "Category");
 
             migrationBuilder.DropTable(
                 name: "LeaderboardOwner");

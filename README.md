@@ -10,8 +10,8 @@ deduct points; anyone can view the class and student rankings for the current ac
 * **.NET 10 & C#** - Core framework and language
 * **ASP.NET Core** - HTTP API with versioning and Swagger
 * **Entity Framework Core with PostgreSQL** - Data access (Repository & Unit of Work patterns)
-* **Redis** - Cache of classes, the current academic year and leaderboards, cleared on every change and bypassed while
-  Redis is down
+* **Redis** - Cache of classes, categories, the current academic year and leaderboards, cleared on every change and
+  bypassed while Redis is down
 * **Server-sent events** - `/api/leaderboard/events` tells clients when leaderboards change, across all API instances
   via Redis pub/sub
 * **JWT + refresh tokens** - Access token in the `Authorization` header, rotating refresh token in an HttpOnly cookie;
@@ -97,8 +97,9 @@ environment at `/swagger/v1/swagger.json`.
 | Owner        | `/api/owner`        | Owner accounts and password change               |
 | Class        | `/api/class`        | Classes (filter by `?grade=`)                    |
 | Student      | `/api/student`      | Students, batch create, transfer, deactivate     |
-| Score        | `/api/score`        | Award or deduct points, history                  |
-| Leaderboard  | `/api/leaderboard`  | Class and student rankings, change events (SSE)  |
+| Category     | `/api/category`     | Score categories, archive and restore            |
+| Score        | `/api/score`        | Award or deduct points in a category, history    |
+| Leaderboard  | `/api/leaderboard`  | Rankings (filter by `?categoryId=`), SSE events  |
 | AcademicYear | `/api/academicyear` | Current year and starting a new one (graduation) |
 
 ## Testing

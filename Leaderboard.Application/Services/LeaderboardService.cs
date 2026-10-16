@@ -1,6 +1,7 @@
 using Leaderboard.Application.Enums;
 using Leaderboard.Application.Extensions;
 using Leaderboard.Application.Resources;
+using Leaderboard.Domain.Dtos.Category;
 using Leaderboard.Domain.Dtos.Leaderboard;
 using Leaderboard.Domain.Entities;
 using Leaderboard.Domain.Interfaces.Repository;
@@ -15,16 +16,16 @@ public class LeaderboardService(
     IBaseRepository<Student> studentRepository,
     IBaseRepository<SchoolClass> classRepository,
     IBaseRepository<ScoreTransaction> scoreTransactionRepository,
-    IBaseRepository<AcademicYear> academicYearRepository) : ILeaderboardService
+    IBaseRepository<AcademicYear> academicYearRepository,
+    ICategoryService categoryService) : ILeaderboardService
 {
-    public Task<CollectionResult<ClassLeaderboardEntryDto>> GetSchoolClassesAsync(
+    public Task<CollectionResult<ClassLeaderboardEntryDto>> GetSchoolClassesAsync(long? categoryId,
         CancellationToken cancellationToken = default)
     {
-        return GetClassScoresAsync(null, cancellationToken);
+        return GetClassScoresAsync(null, categoryId, cancellationToken);
     }
 
-
-    public Task<CollectionResult<ClassLeaderboardEntryDto>> GetGradeClassesAsync(int grade,
+    public Task<CollectionResult<ClassLeaderboardEntryDto>> GetGradeClassesAsync(int grade, long? categoryId,
         CancellationToken cancellationToken = default)
     {
         if (grade is < EntityConstraints.MinGrade or > EntityConstraints.MaxGrade)
@@ -32,11 +33,11 @@ public class LeaderboardService(
                 string.Format(ErrorMessage.InvalidGrade, EntityConstraints.MinGrade, EntityConstraints.MaxGrade),
                 (int)ErrorCodes.InvalidProperty));
 
-        return GetClassScoresAsync(grade, cancellationToken);
+        return GetClassScoresAsync(grade, categoryId, cancellationToken);
     }
 
     public async Task<CollectionResult<StudentLeaderboardEntryDto>> GetClassStudentsAsync(long classId,
-        CancellationToken cancellationToken = default)
+        long? categoryId, CancellationToken cancellationToken = default)
     {
         if (!await classRepository.GetAll().AnyAsync(x => x.Id == classId && x.IsActive, cancellationToken))
             return CollectionResult<StudentLeaderboardEntryDto>.Failure(ErrorMessage.ClassNotFound,
@@ -47,16 +48,26 @@ public class LeaderboardService(
             return CollectionResult<StudentLeaderboardEntryDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
 
-        var students = await GetStudentScoresAsync(yearId.Value, classId, cancellationToken);
+        var categories = await GetActiveCategoriesAsync(cancellationToken);
+        if (categoryId != null && categories.All(x => x.Id != categoryId))
+            return CollectionResult<StudentLeaderboardEntryDto>.Failure(ErrorMessage.CategoryNotFound,
+                (int)ErrorCodes.CategoryNotFound);
+
+        var students = await GetStudentScoresAsync(yearId.Value, classId, categoryId, cancellationToken);
+        var categoryScores = await GetStudentCategoryScoresAsync(yearId.Value,
+            students.Select(x => x.StudentId).ToArray(), cancellationToken);
 
         var entries = students
-            .Select((x, i) => new StudentLeaderboardEntryDto(i + 1, x.StudentId, x.FirstName, x.LastName, x.Score))
+            .Select((x, i) => new StudentLeaderboardEntryDto(i + 1, x.StudentId, x.FirstName, x.LastName, x.Score,
+                categories.Select(category => new StudentCategoryScoreDto(category.Id, category.Name,
+                        categoryScores.GetValueOrDefault((x.StudentId, category.Id))))
+                    .ToArray()))
             .ToArray();
 
         return CollectionResult<StudentLeaderboardEntryDto>.Success(entries);
     }
 
-    public async Task<BaseResult<StudentRankDto>> GetStudentRankAsync(long studentId,
+    public async Task<BaseResult<StudentRankDto>> GetStudentRankAsync(long studentId, long? categoryId,
         CancellationToken cancellationToken = default)
     {
         var student = await studentRepository.GetAll().AsNoTracking()
@@ -70,18 +81,27 @@ public class LeaderboardService(
             return BaseResult<StudentRankDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
 
+        var categories = await GetActiveCategoriesAsync(cancellationToken);
+        if (categoryId != null && categories.All(x => x.Id != categoryId))
+            return BaseResult<StudentRankDto>.Failure(ErrorMessage.CategoryNotFound,
+                (int)ErrorCodes.CategoryNotFound);
+
         // The rank is among the classmates, so the whole class is ranked
-        var classmates = await GetStudentScoresAsync(yearId.Value, student.ClassId, cancellationToken);
+        var classmates = await GetStudentScoresAsync(yearId.Value, student.ClassId, categoryId, cancellationToken);
         var index = Array.FindIndex(classmates, x => x.StudentId == studentId);
         var rank = index + 1;
 
+        var categoryScores = await GetStudentCategoryScoresAsync(yearId.Value, [studentId], cancellationToken);
+
         var dto = new StudentRankDto(rank, student.Id, student.FirstName, student.LastName, classmates[index].Score,
-            student.ClassId, student.Class.DisplayName);
+            student.ClassId, student.Class.DisplayName,
+            categories.Select(x => new StudentCategoryScoreDto(x.Id, x.Name,
+                categoryScores.GetValueOrDefault((studentId, x.Id)))).ToArray());
 
         return BaseResult<StudentRankDto>.Success(dto);
     }
 
-    private async Task<CollectionResult<ClassLeaderboardEntryDto>> GetClassScoresAsync(int? grade,
+    private async Task<CollectionResult<ClassLeaderboardEntryDto>> GetClassScoresAsync(int? grade, long? categoryId,
         CancellationToken cancellationToken)
     {
         var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
@@ -89,8 +109,13 @@ public class LeaderboardService(
             return CollectionResult<ClassLeaderboardEntryDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
                 (int)ErrorCodes.CurrentAcademicYearNotFound);
 
-        var transactions = scoreTransactionRepository.GetAll()
-            .Where(t => t.AcademicYearId == yearId && t.Student.IsActive);
+        var categories = await GetActiveCategoriesAsync(cancellationToken);
+        if (categoryId != null && categories.All(x => x.Id != categoryId))
+            return CollectionResult<ClassLeaderboardEntryDto>.Failure(ErrorMessage.CategoryNotFound,
+                (int)ErrorCodes.CategoryNotFound);
+
+        var transactions = GetTransactions(yearId.Value, categoryId)
+            .Where(t => t.Student.IsActive);
 
         var classes = await classRepository.GetAll().AsNoTracking()
             .Where(c => c.IsActive && c.Students.Any(s => s.IsActive))
@@ -98,6 +123,7 @@ public class LeaderboardService(
             .Select(c => new
             {
                 Class = c,
+                StudentCount = c.Students.Count(s => s.IsActive),
                 Score = (double)transactions.Where(t => t.Student.ClassId == c.Id).Sum(t => t.Delta) /
                         c.Students.Count(s => s.IsActive),
                 ReachedAt = transactions.Where(t => t.Student.ClassId == c.Id).Max(t => (DateTime?)t.CreatedAt)
@@ -109,21 +135,31 @@ public class LeaderboardService(
             .ThenBy(c => c.Class.Letter)
             .ToArrayAsync(cancellationToken);
 
-        var entries = classes
-            .Select((c, i) =>
+        // Sums of every category, whatever the filter, divided by the student count below
+        var classIds = classes.Select(c => c.Class.Id).ToArray();
+        var categorySums = await GetTransactions(yearId.Value, null)
+            .Where(t => t.Student.IsActive && classIds.Contains(t.Student.ClassId))
+            .GroupBy(t => new { t.Student.ClassId, t.CategoryId })
+            .Select(g => new { g.Key.ClassId, g.Key.CategoryId, Sum = g.Sum(t => t.Delta) })
+            .ToDictionaryAsync(x => (x.ClassId, x.CategoryId), x => x.Sum, cancellationToken);
+
+        var entries = classes.Select((c, i) =>
                 new ClassLeaderboardEntryDto(i + 1, c.Class.Id, c.Class.DisplayName,
-                    Math.Round(c.Score, 2, MidpointRounding.AwayFromZero)))
+                    Math.Round(c.Score, 2, MidpointRounding.AwayFromZero),
+                    categories.Select(x =>
+                        new ClassCategoryScoreDto(x.Id, x.Name,
+                            Math.Round((double)categorySums.GetValueOrDefault((c.Class.Id, x.Id)) / c.StudentCount, 2,
+                                MidpointRounding.AwayFromZero))).ToArray()))
             .ToArray();
 
         return CollectionResult<ClassLeaderboardEntryDto>.Success(entries);
     }
 
-    private async Task<StudentScore[]> GetStudentScoresAsync(long yearId, long classId,
+    private async Task<StudentScore[]> GetStudentScoresAsync(long yearId, long classId, long? categoryId,
         CancellationToken cancellationToken)
     {
-        var transactions = scoreTransactionRepository.GetAll().Where(t => t.AcademicYearId == yearId);
+        var transactions = GetTransactions(yearId, categoryId);
 
-        // An anonymous type, not the record: EF cannot order by members of a constructor projection
         var students = await studentRepository.GetAll().AsNoTracking()
             .Where(x => x.IsActive && x.Class.IsActive)
             .Where(x => x.ClassId == classId)
@@ -145,6 +181,26 @@ public class LeaderboardService(
 
         return students.Select(x => new StudentScore(x.Id, x.FirstName, x.LastName, x.Score)).ToArray();
     }
+
+    private Task<Dictionary<(long StudentId, long CategoryId), int>> GetStudentCategoryScoresAsync(long yearId,
+        long[] studentIds, CancellationToken cancellationToken)
+    {
+        return GetTransactions(yearId, null)
+            .Where(t => studentIds.Contains(t.StudentId))
+            .GroupBy(t => new { t.StudentId, t.CategoryId })
+            .Select(g => new { g.Key.StudentId, g.Key.CategoryId, Score = g.Sum(t => t.Delta) })
+            .ToDictionaryAsync(x => (x.StudentId, x.CategoryId), x => x.Score, cancellationToken);
+    }
+
+    private IQueryable<ScoreTransaction> GetTransactions(long yearId, long? categoryId) => scoreTransactionRepository
+        .GetAll().Where(t =>
+            t.AcademicYearId == yearId && !t.Category.IsArchived && (categoryId == null || t.CategoryId == categoryId));
+
+
+    private async Task<IReadOnlyCollection<CategoryDto>>
+        GetActiveCategoriesAsync(CancellationToken cancellationToken) =>
+        (await categoryService.GetAllAsync(false, cancellationToken)).Data ?? [];
+
 
     private sealed record StudentScore(
         long StudentId,

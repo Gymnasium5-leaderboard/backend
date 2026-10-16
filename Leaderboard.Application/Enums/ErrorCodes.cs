@@ -9,6 +9,7 @@ public enum ErrorCodes
     //Class: 41-50
     //Student: 51-60
     //Score: 61-70
+    //Category: 71-80
 
     InvalidProperty = 1,
 
@@ -28,5 +29,10 @@ public enum ErrorCodes
 
     StudentNotFound = 51,
 
-    ScoreWouldBeNegative = 61
+    ScoreWouldBeNegative = 61,
+
+    CategoryNotFound = 71,
+    CategoryAlreadyExists = 72,
+    CategoryArchived = 73,
+    CategoryInUse = 74
 }

@@ -49,6 +49,60 @@ namespace Leaderboard.DAL.Migrations
                     b.ToTable("AcademicYear");
                 });
 
+            modelBuilder.Entity("Leaderboard.Domain.Entities.Category", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<long>("Id"), 6L, null, null, null, null, null);
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Category");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            IsArchived = false,
+                            Name = "Учёба"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            IsArchived = false,
+                            Name = "Спорт"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            IsArchived = false,
+                            Name = "Творчество"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            IsArchived = false,
+                            Name = "Общественная деятельность"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            IsArchived = false,
+                            Name = "Военно-патриотическая деятельность"
+                        });
+                });
+
             modelBuilder.Entity("Leaderboard.Domain.Entities.LeaderboardOwner", b =>
                 {
                     b.Property<long>("Id")
@@ -173,6 +227,9 @@ namespace Leaderboard.DAL.Migrations
                     b.Property<long>("AcademicYearId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -194,6 +251,8 @@ namespace Leaderboard.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
 
@@ -203,7 +262,7 @@ namespace Leaderboard.DAL.Migrations
 
                     b.HasIndex("AcademicYearId", "StudentId");
 
-                    NpgsqlIndexBuilderExtensions.IncludeProperties(b.HasIndex("AcademicYearId", "StudentId"), new[] { "Delta", "CreatedAt" });
+                    NpgsqlIndexBuilderExtensions.IncludeProperties(b.HasIndex("AcademicYearId", "StudentId"), new[] { "Delta", "CreatedAt", "CategoryId" });
 
                     b.ToTable("ScoreTransaction", t =>
                         {
@@ -267,6 +326,12 @@ namespace Leaderboard.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Leaderboard.Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Leaderboard.Domain.Entities.LeaderboardOwner", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
@@ -280,6 +345,8 @@ namespace Leaderboard.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("AcademicYear");
+
+                    b.Navigation("Category");
 
                     b.Navigation("Owner");
 

@@ -36,11 +36,13 @@ public static class DependencyInjection
         services.Decorate<IStudentService, CacheStudentService>();
         services.Decorate<IScoreService, CacheScoreService>();
         services.Decorate<ILeaderboardService, CacheLeaderboardService>();
+        services.Decorate<ICategoryService, CacheCategoryService>();
         
         services.Decorate<IClassService, NotifyClassService>();
         services.Decorate<IAcademicYearService, NotifyAcademicYearService>();
         services.Decorate<IStudentService, NotifyStudentService>();
         services.Decorate<IScoreService, NotifyScoreService>();
+        services.Decorate<ICategoryService, NotifyCategoryService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateOwnerValidator>();
     }

@@ -32,8 +32,8 @@ public static class DependencyInjection
 
     private static void InitRepositories(this IServiceCollection services)
     {
-        services.AddBaseRepositories(typeof(AcademicYear), typeof(LeaderboardOwner), typeof(RefreshToken),
-            typeof(SchoolClass), typeof(ScoreTransaction), typeof(Student));
+        services.AddBaseRepositories(typeof(AcademicYear), typeof(Category), typeof(LeaderboardOwner),
+            typeof(RefreshToken), typeof(SchoolClass), typeof(ScoreTransaction), typeof(Student));
         services.AddScoped<ILockAcquirer, NpgsqlLockAcquirer>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }

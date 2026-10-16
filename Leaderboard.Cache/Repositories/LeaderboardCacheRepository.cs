@@ -28,51 +28,57 @@ public class LeaderboardCacheRepository(ICacheProvider cache, IOptions<RedisSett
     // a change goes under the version before it. The repository is scoped, so this belongs to one request.
     private long? _version;
 
-    public Task<IReadOnlyCollection<ClassLeaderboardEntryDto>?> GetSchoolClassesAsync(
-        CancellationToken cancellationToken = default)
-    {
-        return GetAsync<IReadOnlyCollection<ClassLeaderboardEntryDto>>(CacheKeyHelper.GetSchoolClassesLeaderboardKey,
-            cancellationToken);
-    }
-
-    public Task SetSchoolClassesAsync(IReadOnlyCollection<ClassLeaderboardEntryDto> classes)
-    {
-        return SetAsync(CacheKeyHelper.GetSchoolClassesLeaderboardKey, classes);
-    }
-
-    public Task<IReadOnlyCollection<ClassLeaderboardEntryDto>?> GetGradeClassesAsync(int grade,
+    public Task<IReadOnlyCollection<ClassLeaderboardEntryDto>?> GetSchoolClassesAsync(long? categoryId,
         CancellationToken cancellationToken = default)
     {
         return GetAsync<IReadOnlyCollection<ClassLeaderboardEntryDto>>(
-            version => CacheKeyHelper.GetGradeClassesLeaderboardKey(version, grade), cancellationToken);
+            version => CacheKeyHelper.GetSchoolClassesLeaderboardKey(version, categoryId), cancellationToken);
     }
 
-    public Task SetGradeClassesAsync(int grade, IReadOnlyCollection<ClassLeaderboardEntryDto> classes)
+    public Task SetSchoolClassesAsync(long? categoryId, IReadOnlyCollection<ClassLeaderboardEntryDto> classes)
     {
-        return SetAsync(version => CacheKeyHelper.GetGradeClassesLeaderboardKey(version, grade), classes);
+        return SetAsync(version => CacheKeyHelper.GetSchoolClassesLeaderboardKey(version, categoryId), classes);
+    }
+
+    public Task<IReadOnlyCollection<ClassLeaderboardEntryDto>?> GetGradeClassesAsync(int grade, long? categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return GetAsync<IReadOnlyCollection<ClassLeaderboardEntryDto>>(
+            version => CacheKeyHelper.GetGradeClassesLeaderboardKey(version, grade, categoryId), cancellationToken);
+    }
+
+    public Task SetGradeClassesAsync(int grade, long? categoryId,
+        IReadOnlyCollection<ClassLeaderboardEntryDto> classes)
+    {
+        return SetAsync(version => CacheKeyHelper.GetGradeClassesLeaderboardKey(version, grade, categoryId),
+            classes);
     }
 
     public Task<IReadOnlyCollection<StudentLeaderboardEntryDto>?> GetClassStudentsAsync(long classId,
-        CancellationToken cancellationToken = default)
+        long? categoryId, CancellationToken cancellationToken = default)
     {
         return GetAsync<IReadOnlyCollection<StudentLeaderboardEntryDto>>(
-            version => CacheKeyHelper.GetClassStudentsLeaderboardKey(version, classId), cancellationToken);
-    }
-
-    public Task SetClassStudentsAsync(long classId, IReadOnlyCollection<StudentLeaderboardEntryDto> students)
-    {
-        return SetAsync(version => CacheKeyHelper.GetClassStudentsLeaderboardKey(version, classId), students);
-    }
-
-    public Task<StudentRankDto?> GetStudentRankAsync(long studentId, CancellationToken cancellationToken = default)
-    {
-        return GetAsync<StudentRankDto>(version => CacheKeyHelper.GetStudentRankKey(version, studentId),
+            version => CacheKeyHelper.GetClassStudentsLeaderboardKey(version, classId, categoryId),
             cancellationToken);
     }
 
-    public Task SetStudentRankAsync(StudentRankDto rank)
+    public Task SetClassStudentsAsync(long classId, long? categoryId,
+        IReadOnlyCollection<StudentLeaderboardEntryDto> students)
     {
-        return SetAsync(version => CacheKeyHelper.GetStudentRankKey(version, rank.StudentId), rank);
+        return SetAsync(version => CacheKeyHelper.GetClassStudentsLeaderboardKey(version, classId, categoryId),
+            students);
+    }
+
+    public Task<StudentRankDto?> GetStudentRankAsync(long studentId, long? categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return GetAsync<StudentRankDto>(version => CacheKeyHelper.GetStudentRankKey(version, studentId, categoryId),
+            cancellationToken);
+    }
+
+    public Task SetStudentRankAsync(long? categoryId, StudentRankDto rank)
+    {
+        return SetAsync(version => CacheKeyHelper.GetStudentRankKey(version, rank.StudentId, categoryId), rank);
     }
 
     public async Task RemoveAllAsync()

@@ -34,7 +34,13 @@ public static class BaseResultExtensions
         { (int)ErrorCodes.StudentNotFound, StatusCodes.Status404NotFound },
 
         // Score
-        { (int)ErrorCodes.ScoreWouldBeNegative, StatusCodes.Status409Conflict }
+        { (int)ErrorCodes.ScoreWouldBeNegative, StatusCodes.Status409Conflict },
+
+        // Category
+        { (int)ErrorCodes.CategoryNotFound, StatusCodes.Status404NotFound },
+        { (int)ErrorCodes.CategoryAlreadyExists, StatusCodes.Status409Conflict },
+        { (int)ErrorCodes.CategoryArchived, StatusCodes.Status409Conflict },
+        { (int)ErrorCodes.CategoryInUse, StatusCodes.Status409Conflict }
     };
 
     /// <summary>
