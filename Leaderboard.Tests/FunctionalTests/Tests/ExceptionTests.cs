@@ -29,7 +29,7 @@ public class ExceptionTests : ExceptionBaseFunctionalTest
     public async Task ChangeScore_SimulatedDbFailure_ReturnsInternalServerError()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var response = await HttpClient.ChangeScoreAsync(dto);
@@ -47,7 +47,7 @@ public class ExceptionTests : ExceptionBaseFunctionalTest
     public async Task ChangeScoreBatch_SimulatedDbFailure_ReturnsInternalServerError()
     {
         //Arrange
-        var dto = new ChangeScoreBatchDto(null, 3, 5, null);
+        var dto = new ChangeScoreBatchDto(null, 3, 1, 5, null);
 
         //Act
         var response = await HttpClient.ChangeScoreBatchAsync(dto);

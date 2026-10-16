@@ -26,7 +26,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(1, 5, "Olympiad");
+        var dto = new ChangeScoreDto(1, 1, 5, "Olympiad");
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -39,6 +39,59 @@ public class ScoreServiceTests
     }
 
     [Theory]
+    [InlineData(99, nameof(ErrorMessage.CategoryNotFound))]
+    [InlineData(6, nameof(ErrorMessage.CategoryArchived))]
+    public async Task ChangeScoreAsync_UnknownOrArchivedCategory_ReturnsError(long categoryId, string errorName)
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        var dto = new ChangeScoreDto(1, categoryId, 5, null);
+
+        //Act
+        var result = await scoreService.ChangeScoreAsync(1, dto, null);
+
+        //Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorMessage.ResourceManager.GetString(errorName), result.ErrorMessage);
+        Assert.Null(result.Data);
+    }
+
+    [Fact]
+    public async Task ChangeScoreAsync_CategoryWouldBeNegative_ReturnsScoreWouldBeNegative()
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        // Student 6 has 6 in total, but only 2 in category 1
+        var dto = new ChangeScoreDto(6, 1, -3, null);
+
+        //Act
+        var result = await scoreService.ChangeScoreAsync(1, dto, null);
+
+        //Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(string.Format(ErrorMessage.ScoreWouldBeNegative, 6), result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task ChangeScoreAsync_OtherCategory_ReturnsScoreAndCategoryScore()
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        var dto = new ChangeScoreDto(6, 2, -3, null);
+
+        //Act
+        var result = await scoreService.ChangeScoreAsync(1, dto, null);
+
+        //Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.CategoryId);
+        // The archived category is not counted in the total
+        Assert.Equal(3, result.Data.Score);
+        Assert.Equal(1, result.Data.CategoryScore);
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(SettingsFixture.MaxScoreDelta + 1)]
     [InlineData(-SettingsFixture.MaxScoreDelta - 1)]
@@ -46,7 +99,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(1, delta, null);
+        var dto = new ChangeScoreDto(1, 1, delta, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -63,7 +116,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(1, 5, new string('a', EntityConstraints.ScoreDescriptionMaxLength + 1));
+        var dto = new ChangeScoreDto(1, 1, 5, new string('a', EntityConstraints.ScoreDescriptionMaxLength + 1));
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -83,7 +136,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(studentId, 5, null);
+        var dto = new ChangeScoreDto(studentId, 1, 5, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -99,7 +152,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(1, -6, null);
+        var dto = new ChangeScoreDto(1, 1, -6, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -115,7 +168,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut(allowNegativeScore: true).GetService();
-        var dto = new ChangeScoreDto(1, -6, null);
+        var dto = new ChangeScoreDto(1, 1, -6, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -131,7 +184,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreDto(3, 10, null);
+        var dto = new ChangeScoreDto(3, 1, 10, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, TestConstants.ExistingIdempotencyKey);
@@ -149,7 +202,7 @@ public class ScoreServiceTests
         //Arrange
         var scoreService =
             new ScoreServiceSut(RepositoryMocks.GetEmptyMockRepository<AcademicYear>().Object).GetService();
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var result = await scoreService.ChangeScoreAsync(1, dto, null);
@@ -165,7 +218,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto([2, 1, 1], null, 2, null);
+        var dto = new ChangeScoreBatchDto([2, 1, 1], null, 1, 2, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -176,6 +229,21 @@ public class ScoreServiceTests
         Assert.Equal([(1L, 7), (2L, 5)], result.Data.Select(x => (x.StudentId, x.Score)));
     }
 
+    [Fact]
+    public async Task ChangeScoreBatchAsync_ArchivedCategory_ReturnsCategoryArchived()
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        var dto = new ChangeScoreBatchDto(null, 3, 6, 2, null);
+
+        //Act
+        var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
+
+        //Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorMessage.CategoryArchived, result.ErrorMessage);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(SettingsFixture.MaxScoreDelta + 1)]
@@ -184,7 +252,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto([2, 1, 1], null, delta, null);
+        var dto = new ChangeScoreBatchDto([2, 1, 1], null, 1, delta, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -201,7 +269,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto(null, 3, 1, null);
+        var dto = new ChangeScoreBatchDto(null, 3, 1, 1, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -219,7 +287,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto(null, classId, 1, null);
+        var dto = new ChangeScoreBatchDto(null, classId, 1, 1, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -235,7 +303,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto(null, 6, 1, null);
+        var dto = new ChangeScoreBatchDto(null, 6, 1, 1, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -253,7 +321,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto(studentIds, classId, 1, null);
+        var dto = new ChangeScoreBatchDto(studentIds, classId, 1, 1, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -269,7 +337,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto([1, 5, 7], null, 1, null);
+        var dto = new ChangeScoreBatchDto([1, 5, 7], null, 1, 1, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -285,7 +353,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var dto = new ChangeScoreBatchDto([1, 2], null, -4, null);
+        var dto = new ChangeScoreBatchDto([1, 2], null, 1, -4, null);
 
         //Act
         var result = await scoreService.ChangeScoreBatchAsync(1, dto, null);
@@ -301,7 +369,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var query = new ScoreHistoryQueryDto(null, null, 1, 2);
+        var query = new ScoreHistoryQueryDto(null, null, null, 1, 2);
 
         //Act
         var result = await scoreService.GetHistoryAsync(query);
@@ -309,8 +377,42 @@ public class ScoreServiceTests
         //Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.Equal(6, result.TotalCount);
-        Assert.Equal([6L, 5L], result.Data.Select(x => x.Id));
+        Assert.Equal(9, result.TotalCount);
+        Assert.Equal([9L, 8L], result.Data.Select(x => x.Id));
+    }
+
+    [Fact]
+    public async Task GetHistoryAsync_CategoryFilter_ReturnsTransactionsOfCategory()
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        var query = new ScoreHistoryQueryDto(null, null, 2);
+
+        //Act
+        var result = await scoreService.GetHistoryAsync(query);
+
+        //Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        var transaction = Assert.Single(result.Data);
+        Assert.Equal("Спорт", transaction.CategoryName);
+    }
+
+    [Fact]
+    public async Task GetHistoryAsync_ArchivedCategory_IsIncluded()
+    {
+        //Arrange
+        var scoreService = new ScoreServiceSut().GetService();
+        var query = new ScoreHistoryQueryDto(6, null, null);
+
+        //Act
+        var result = await scoreService.GetHistoryAsync(query);
+
+        //Assert
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal([(9L, true), (8L, false), (7L, false), (4L, false)],
+            result.Data.Select(x => (x.Id, x.CategoryIsArchived)));
     }
 
     [Fact]
@@ -318,7 +420,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var query = new ScoreHistoryQueryDto(null, 3);
+        var query = new ScoreHistoryQueryDto(null, 3, null);
 
         //Act
         var result = await scoreService.GetHistoryAsync(query);
@@ -334,7 +436,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var query = new ScoreHistoryQueryDto(1, null);
+        var query = new ScoreHistoryQueryDto(1, null, null);
 
         //Act
         var result = await scoreService.GetHistoryAsync(query);
@@ -354,7 +456,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var query = new ScoreHistoryQueryDto(null, null, page, pageSize);
+        var query = new ScoreHistoryQueryDto(null, null, null, page, pageSize);
 
         //Act
         var result = await scoreService.GetHistoryAsync(query);
@@ -371,7 +473,7 @@ public class ScoreServiceTests
     {
         //Arrange
         var scoreService = new ScoreServiceSut().GetService();
-        var query = new ScoreHistoryQueryDto(null, null, 0);
+        var query = new ScoreHistoryQueryDto(null, null, null, 0);
 
         //Act
         var result = await scoreService.GetHistoryAsync(query);

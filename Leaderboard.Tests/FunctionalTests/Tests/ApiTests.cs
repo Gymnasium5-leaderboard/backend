@@ -23,7 +23,7 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
     public async Task PostScore_MissingAuthToken_ReturnsUnauthorized()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var response = await HttpClient.PostAsJsonAsync(ProtectedUrl, dto);
@@ -39,7 +39,7 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
     public async Task PostScore_MissingAuthTokenFromOtherOrigin_ReturnsUnauthorizedWithCorsHeaders()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
         using var request = new HttpRequestMessage(HttpMethod.Post, ProtectedUrl);
         request.Headers.Add("Origin", "http://localhost:5173");
         request.Content = JsonContent.Create(dto);
@@ -58,7 +58,7 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
         //Arrange
         var accessToken = TokenHelper.GetToken([new Claim(JwtRegisteredClaimNames.Sub, "not-an-owner-id")]);
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var response = await HttpClient.PostAsJsonAsync(ProtectedUrl, dto);
@@ -77,7 +77,7 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
         var accessToken = TokenHelper.GetToken([new Claim(JwtRegisteredClaimNames.Sub, "1")],
             "another-signing-key-that-is-at-least-32-bytes");
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var response = await HttpClient.PostAsJsonAsync(ProtectedUrl, dto);
@@ -93,7 +93,7 @@ public class ApiTests(FunctionalTestWebAppFactory factory) : BaseFunctionalTest(
         var accessToken = TokenHelper.GetToken([new Claim(JwtRegisteredClaimNames.Sub, "1")],
             expiresAt: DateTime.UtcNow.AddMinutes(-5));
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var dto = new ChangeScoreDto(1, 5, null);
+        var dto = new ChangeScoreDto(1, 1, 5, null);
 
         //Act
         var response = await HttpClient.PostAsJsonAsync(ProtectedUrl, dto);

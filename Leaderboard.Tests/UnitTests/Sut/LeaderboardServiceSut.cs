@@ -23,7 +23,7 @@ internal class LeaderboardServiceSut
         AcademicYearRepository = academicYearRepository ?? RepositoryMocks.GetMockAcademicYearRepository().Object;
 
         _leaderboardService = new LeaderboardService(StudentRepository, ClassRepository, ScoreTransactionRepository,
-            AcademicYearRepository);
+            AcademicYearRepository, new CategoryServiceSut().GetService());
     }
 
     public ILeaderboardService GetService()

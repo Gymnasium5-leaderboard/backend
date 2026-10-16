@@ -28,6 +28,22 @@ public class LeaderboardServiceTests(FunctionalTestWebAppFactory factory) : Base
         Assert.Equal([(1, "7А", 10.0), (2, "7Б", 6.0), (3, "11А", 5.0), (4, "10А", 3.0)],
             result.Data.Select(x => (x.Rank, x.ClassName, x.Score)));
     }
+    
+    [Fact]
+    public async Task GetSchoolClasses_CategoryFilter_ReturnsOkRankedByCategory()
+    {
+        //Arrange
+        HttpClient.DefaultRequestHeaders.Authorization = null;
+        await HttpClient.GetAsync("/api/leaderboard/classes"); // the unfiltered one is cached under another key
+
+        //Act
+        var response = await HttpClient.GetAsync("/api/leaderboard/classes?categoryId=2");
+        var result = await response.Content.ReadFromJsonAsync<CollectionResult<ClassLeaderboardEntryDto>>();
+
+        //Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal([(4L, 4.0), (3L, 0.0), (2L, 0.0), (1L, 0.0)], result!.Data!.Select(x => (x.ClassId, x.Score)));
+    }
 
     [Fact]
     public async Task GetGradeClasses_ExistingGrade_ReturnsOkWithClassesOfGrade()
@@ -79,6 +95,23 @@ public class LeaderboardServiceTests(FunctionalTestWebAppFactory factory) : Base
         Assert.True(result!.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal([(1, 3L, 10), (2, 4L, 10)], result.Data.Select(x => (x.Rank, x.StudentId, x.Score)));
+    }
+    
+    [Fact]
+    public async Task GetClassStudents_CategoryFilter_ReturnsOkWithCategoryScore()
+    {
+        //Arrange
+        HttpClient.DefaultRequestHeaders.Authorization = null;
+
+        //Act
+        var response = await HttpClient.GetAsync("/api/leaderboard/classes/4/students?categoryId=2");
+        var result = await response.Content.ReadFromJsonAsync<CollectionResult<StudentLeaderboardEntryDto>>();
+
+        //Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var student = Assert.Single(result!.Data!);
+        Assert.Equal(4, student.Score);
+        Assert.Equal([2, 4, 0, 0, 0], student.CategoryScores.Select(x => x.Score));
     }
 
     [Fact]

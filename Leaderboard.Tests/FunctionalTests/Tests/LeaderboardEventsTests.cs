@@ -24,7 +24,7 @@ public class LeaderboardEventsTests : SequentialFunctionalTest
     public async Task ChangeScore_Subscribed_SendsChangedEvent()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 1, null);
+        var dto = new ChangeScoreDto(1, 1, 1, null);
         await using var events = await LeaderboardEventStream.ConnectAsync(HttpClient);
 
         //Act
@@ -38,7 +38,7 @@ public class LeaderboardEventsTests : SequentialFunctionalTest
     public async Task ChangeScore_Failed_SendsNoEvent()
     {
         //Arrange
-        var dto = new ChangeScoreDto(5, 1, null);
+        var dto = new ChangeScoreDto(5, 1, 1, null);
         await using var events = await LeaderboardEventStream.ConnectAsync(HttpClient);
 
         //Act
@@ -53,7 +53,7 @@ public class LeaderboardEventsTests : SequentialFunctionalTest
     public async Task ChangeScore_OneOfTwoSubscribersDisconnected_SendsChangedEventToOther()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 1, null);
+        var dto = new ChangeScoreDto(1, 1, 1, null);
         await using var events = await LeaderboardEventStream.ConnectAsync(HttpClient);
         var disconnected = await LeaderboardEventStream.ConnectAsync(HttpClient);
         await disconnected.DisposeAsync();

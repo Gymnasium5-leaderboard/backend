@@ -47,6 +47,11 @@ internal static class RepositoryMocks
         return GetMockRepository(tokens);
     }
 
+    public static IMock<IBaseRepository<Category>> GetMockCategoryRepository()
+    {
+        return GetMockRepository(BuildGraph().Categories);
+    }
+
     public static IMock<IBaseRepository<SchoolClass>> GetMockClassRepository()
     {
         return GetMockRepository(BuildGraph().Classes);
@@ -83,9 +88,10 @@ internal static class RepositoryMocks
     }
 
     private static (List<LeaderboardOwner> Owners, List<SchoolClass> Classes, List<Student> Students,
-        List<ScoreTransaction> Transactions) BuildGraph()
+        List<Category> Categories, List<ScoreTransaction> Transactions) BuildGraph()
     {
         var owners = OwnerMother.GetOwners().ToList();
+        var categories = CategoryMother.GetCategories().ToList();
         var classes = ClassMother.GetClasses().ToList();
         var students = StudentMother.GetStudents().ToList();
         var transactions = ScoreTransactionMother.GetScoreTransactions().ToList();
@@ -100,8 +106,9 @@ internal static class RepositoryMocks
         {
             transaction.Student = students.First(x => x.Id == transaction.StudentId);
             transaction.Owner = owners.First(x => x.Id == transaction.OwnerId);
+            transaction.Category = categories.First(x => x.Id == transaction.CategoryId);
         }
 
-        return (owners, classes, students, transactions);
+        return (owners, classes, students, categories, transactions);
     }
 }

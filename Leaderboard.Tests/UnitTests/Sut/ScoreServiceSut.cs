@@ -20,6 +20,9 @@ internal class ScoreServiceSut
         ValidatorFixture<ChangeScoreBatchDto>.GetValidator(
             new ChangeScoreBatchValidator(SettingsFixture.GetBusinessRules()));
 
+    public readonly IBaseRepository<Category> CategoryRepository =
+        RepositoryMocks.GetMockCategoryRepository().Object;
+
     public readonly IBaseRepository<SchoolClass> ClassRepository = RepositoryMocks.GetMockClassRepository().Object;
 
     public readonly IValidator<ScoreHistoryQueryDto> HistoryValidator =
@@ -38,8 +41,8 @@ internal class ScoreServiceSut
     {
         AcademicYearRepository = academicYearRepository ?? RepositoryMocks.GetMockAcademicYearRepository().Object;
 
-        _scoreService = new ScoreService(UnitOfWork, ClassRepository, AcademicYearRepository, ScoreValidator,
-            BatchValidator, HistoryValidator, SettingsFixture.GetBusinessRules(allowNegativeScore), Mapper);
+        _scoreService = new ScoreService(UnitOfWork, ClassRepository, AcademicYearRepository, CategoryRepository,
+            ScoreValidator, BatchValidator, HistoryValidator, SettingsFixture.GetBusinessRules(allowNegativeScore), Mapper);
     }
 
     public IScoreService GetService()

@@ -26,7 +26,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_ActiveStudent_ReturnsOk()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, 5, "Olympiad");
+        var dto = new ChangeScoreDto(1, 1, 5, "Olympiad");
 
         //Act
         var response = await HttpClient.ChangeScoreAsync(dto);
@@ -44,7 +44,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_ScoreBelowZero_ReturnsConflict()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, -6, null);
+        var dto = new ChangeScoreDto(1, 1, -6, null);
 
         //Act
         var response = await HttpClient.ChangeScoreAsync(dto);
@@ -61,7 +61,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_InactiveStudent_ReturnsNotFound()
     {
         //Arrange
-        var dto = new ChangeScoreDto(5, 1, null);
+        var dto = new ChangeScoreDto(5, 1, 1, null);
 
         //Act
         var response = await HttpClient.ChangeScoreAsync(dto);
@@ -78,7 +78,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_ParallelRequests_ReturnsOkForAll()
     {
         //Arrange
-        var dto = new ChangeScoreDto(2, 1, null);
+        var dto = new ChangeScoreDto(2, 1, 1, null);
 
         //Act
         var responses = await Task.WhenAll(Enumerable.Range(0, 20).Select(_ => HttpClient.ChangeScoreAsync(dto)));
@@ -92,7 +92,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_ParallelWithdrawals_ReturnsOkUntilZeroThenConflict()
     {
         //Arrange
-        var dto = new ChangeScoreDto(1, -1, null);
+        var dto = new ChangeScoreDto(1, 1, -1, null);
 
         //Act
         var responses = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => HttpClient.ChangeScoreAsync(dto)));
@@ -107,7 +107,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_UsedIdempotencyKey_ReturnsOkWithExistingTransaction()
     {
         //Arrange
-        var dto = new ChangeScoreDto(3, 10, null);
+        var dto = new ChangeScoreDto(3, 1, 10, null);
 
         //Act
         var response = await HttpClient.ChangeScoreAsync(dto, TestConstants.ExistingIdempotencyKey);
@@ -125,7 +125,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScore_SameIdempotencyKeyInParallel_ReturnsOkAndAppliesOnce()
     {
         //Arrange
-        var dto = new ChangeScoreDto(2, 10, null);
+        var dto = new ChangeScoreDto(2, 1, 10, null);
         var idempotencyKey = Guid.NewGuid();
 
         //Act
@@ -144,7 +144,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScoreBatch_ClassId_ReturnsOkForActiveStudentsOnly()
     {
         //Arrange
-        var dto = new ChangeScoreBatchDto(null, 3, 2, null);
+        var dto = new ChangeScoreBatchDto(null, 3, 1, 2, null);
 
         //Act
         var response = await HttpClient.ChangeScoreBatchAsync(dto);
@@ -162,7 +162,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     {
         //Arrange
         const long classId = 3;
-        var dto = new ChangeScoreDto(4, 1, null);
+        var dto = new ChangeScoreDto(4, 1, 1, null);
         await HttpClient.GetAsync($"/api/leaderboard/classes/{classId}/students");
         await HttpClient.GetAsync("/api/leaderboard/classes");
 
@@ -183,7 +183,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     {
         //Arrange
         const long classId = 4;
-        var dto = new ChangeScoreBatchDto(null, classId, 2, null);
+        var dto = new ChangeScoreBatchDto(null, classId, 1, 2, null);
         await HttpClient.GetAsync("/api/leaderboard/grades/7/classes");
 
         //Act
@@ -199,7 +199,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScoreBatch_OneStudentInactive_ReturnsNotFoundAndRollsBack()
     {
         //Arrange
-        var dto = new ChangeScoreBatchDto([1, 5], null, 2, null);
+        var dto = new ChangeScoreBatchDto([1, 5], null, 1, 2, null);
 
         //Act
         var response = await HttpClient.ChangeScoreBatchAsync(dto);
@@ -216,7 +216,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScoreBatch_OneScoreBelowZero_ReturnsConflictAndRollsBack()
     {
         //Arrange
-        var dto = new ChangeScoreBatchDto([1, 2], null, -4, null);
+        var dto = new ChangeScoreBatchDto([1, 2], null, 1, -4, null);
 
         //Act
         var response = await HttpClient.ChangeScoreBatchAsync(dto);
@@ -234,7 +234,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task ChangeScoreBatch_RepeatedIdempotencyKey_ReturnsOkWithSameTransactions()
     {
         //Arrange
-        var dto = new ChangeScoreBatchDto([1, 2], null, 4, null);
+        var dto = new ChangeScoreBatchDto([1, 2], null, 1, 4, null);
         var idempotencyKey = Guid.NewGuid();
 
         //Act
@@ -253,7 +253,7 @@ public class ScoreServiceTests : SequentialFunctionalTest
     public async Task GetHistory_StudentFilter_ReturnsOkNewestFirst()
     {
         //Arrange
-        (await HttpClient.ChangeScoreAsync(new ChangeScoreDto(1, 2, null))).EnsureSuccessStatusCode();
+        (await HttpClient.ChangeScoreAsync(new ChangeScoreDto(1, 1, 2, null))).EnsureSuccessStatusCode();
 
         //Act
         var response = await HttpClient.GetAsync("/api/score?studentId=1&page=1&pageSize=1");
@@ -265,5 +265,19 @@ public class ScoreServiceTests : SequentialFunctionalTest
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, Assert.Single(result.Data).Delta);
+    }
+    
+    [Fact]
+    public async Task GetHistory_CategoryFilter_ReturnsOkWithCategoryName()
+    {
+        //Act
+        var response = await HttpClient.GetAsync("/api/score?categoryId=6");
+        var result = await response.Content.ReadFromJsonAsync<PagedResult<ScoreTransactionDto>>();
+
+        //Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var transaction = Assert.Single(result!.Data!);
+        Assert.Equal(("Олимпиады", true), (transaction.CategoryName, transaction.CategoryIsArchived));
+        Assert.Equal("Volkova", transaction.StudentLastName);
     }
 }
