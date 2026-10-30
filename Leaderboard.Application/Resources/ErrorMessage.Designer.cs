@@ -123,6 +123,12 @@ namespace Leaderboard.Application.Resources {
             }
         }
         
+        public static string InvalidClassTeacherName {
+            get {
+                return ResourceManager.GetString("InvalidClassTeacherName", resourceCulture);
+            }
+        }
+        
         public static string ClassNotFound {
             get {
                 return ResourceManager.GetString("ClassNotFound", resourceCulture);

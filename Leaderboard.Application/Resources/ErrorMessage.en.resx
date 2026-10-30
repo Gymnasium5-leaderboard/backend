@@ -50,6 +50,9 @@
     <data name="InvalidClassLetter" xml:space="preserve">
         <value>Class letter must be a single letter</value>
     </data>
+    <data name="InvalidClassTeacherName" xml:space="preserve">
+        <value>Class teacher name must not be empty and must be at most {0} characters long</value>
+    </data>
     <data name="ClassNotFound" xml:space="preserve">
         <value>Class not found</value>
     </data>

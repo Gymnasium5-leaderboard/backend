@@ -50,6 +50,9 @@
     <data name="InvalidClassLetter" xml:space="preserve">
         <value>Буква класса должна быть одной буквой</value>
     </data>
+    <data name="InvalidClassTeacherName" xml:space="preserve">
+        <value>Имя классного руководителя не должно быть пустым и должно быть не длиннее {0} символов</value>
+    </data>
     <data name="ClassNotFound" xml:space="preserve">
         <value>Класс не найден</value>
     </data>

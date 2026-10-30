@@ -2,4 +2,4 @@ using Leaderboard.Domain.Interfaces.Validation;
 
 namespace Leaderboard.Domain.Dtos.Class;
 
-public record CreateClassDto(int Grade, char Letter) : IValidatableClass;
+public record CreateClassDto(int Grade, char Letter, string ClassTeacherName) : IValidatableClass;

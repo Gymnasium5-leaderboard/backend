@@ -96,7 +96,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     public async Task CreateClass_NewClass_ReturnsCreated()
     {
         //Arrange
-        var dto = new CreateClassDto(8, 'а');
+        var dto = new CreateClassDto(8, 'а', "Морозова Ирина");
 
         //Act
         var response = await HttpClient.PostAsJsonAsync("/api/class", dto);
@@ -113,7 +113,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     public async Task CreateClass_ExistingClass_ReturnsConflict()
     {
         //Arrange
-        var dto = new CreateClassDto(7, 'А');
+        var dto = new CreateClassDto(7, 'А', "Морозова Ирина");
 
         //Act
         var response = await HttpClient.PostAsJsonAsync("/api/class", dto);
@@ -130,7 +130,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     public async Task CreateClass_InvalidGrade_ReturnsBadRequest()
     {
         //Arrange
-        var dto = new CreateClassDto(EntityConstraints.MaxGrade + 1, 'А');
+        var dto = new CreateClassDto(EntityConstraints.MaxGrade + 1, 'А', "Морозова Ирина");
 
         //Act
         var response = await HttpClient.PostAsJsonAsync("/api/class", dto);
@@ -145,11 +145,29 @@ public class ClassServiceTests : SequentialFunctionalTest
     }
 
     [Fact]
+    public async Task CreateClass_EmptyClassTeacherName_ReturnsBadRequest()
+    {
+        //Arrange
+        var dto = new CreateClassDto(8, 'А', "");
+
+        //Act
+        var response = await HttpClient.PostAsJsonAsync("/api/class", dto);
+        var result = await response.Content.ReadFromJsonAsync<BaseResult<ClassDto>>();
+
+        //Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False(result!.IsSuccess);
+        Assert.Equal(string.Format(ErrorMessage.InvalidClassTeacherName, EntityConstraints.NameMaxLength),
+            result.ErrorMessage);
+        Assert.Null(result.Data);
+    }
+
+    [Fact]
     public async Task UpdateClass_ExistingId_ReturnsOk()
     {
         //Arrange
         const long classId = 3;
-        var dto = new UpdateClassDto(8, 'А');
+        var dto = new UpdateClassDto(8, 'А', "Морозова Ирина");
 
         //Act
         var response = await HttpClient.PutAsJsonAsync($"/api/class/{classId}", dto);
@@ -167,7 +185,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     {
         //Arrange
         const long classId = 3;
-        var dto = new UpdateClassDto(8, 'А');
+        var dto = new UpdateClassDto(8, 'А', "Морозова Ирина");
         await HttpClient.GetAsync($"/api/class/{classId}");
         await HttpClient.GetAsync("/api/class");
 
@@ -187,7 +205,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     public async Task CreateClass_CachedEmptyGrade_ReturnsNewClassOnNextGet()
     {
         //Arrange
-        var dto = new CreateClassDto(9, 'А');
+        var dto = new CreateClassDto(9, 'А', "Морозова Ирина");
         await HttpClient.GetAsync("/api/class?grade=9");
 
         //Act
@@ -203,7 +221,7 @@ public class ClassServiceTests : SequentialFunctionalTest
     {
         //Arrange
         const long classId = 3;
-        var dto = new UpdateClassDto(7, 'Б');
+        var dto = new UpdateClassDto(7, 'Б', "Морозова Ирина");
 
         //Act
         var response = await HttpClient.PutAsJsonAsync($"/api/class/{classId}", dto);

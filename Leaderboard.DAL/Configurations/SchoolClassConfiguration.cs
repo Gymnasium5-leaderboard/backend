@@ -12,6 +12,7 @@ public class SchoolClassConfiguration : IEntityTypeConfiguration<SchoolClass>
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Grade).IsRequired();
         builder.Property(x => x.Letter).IsRequired();
+        builder.Property(x => x.ClassTeacherName).IsRequired().HasMaxLength(EntityConstraints.NameMaxLength);
         builder.Property(x => x.IsActive).IsRequired();
         builder.Ignore(x => x.DisplayName);
 

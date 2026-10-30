@@ -78,7 +78,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(8, 'А');
+        var dto = new CreateClassDto(8, 'А', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -87,6 +87,7 @@ public class ClassServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal("8А", result.Data.DisplayName);
+        Assert.Equal("Морозова Ирина", result.Data.ClassTeacherName);
     }
 
     [Fact]
@@ -94,7 +95,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(9, 'б');
+        var dto = new CreateClassDto(9, 'б', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -110,7 +111,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(7, 'а');
+        var dto = new CreateClassDto(7, 'а', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -126,7 +127,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(11, 'Б');
+        var dto = new CreateClassDto(11, 'Б', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -143,7 +144,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(grade, 'А');
+        var dto = new CreateClassDto(grade, 'А', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -160,7 +161,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new CreateClassDto(7, '1');
+        var dto = new CreateClassDto(7, '1', "Морозова Ирина");
 
         //Act
         var result = await classService.CreateAsync(dto);
@@ -171,13 +172,32 @@ public class ClassServiceTests
         Assert.Null(result.Data);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(EntityConstraints.NameMaxLength + 1)]
+    public async Task CreateAsync_InvalidClassTeacherName_ReturnsInvalidClassTeacherName(int length)
+    {
+        //Arrange
+        var classService = new ClassServiceSut().GetService();
+        var dto = new CreateClassDto(8, 'А', new string('а', length));
+
+        //Act
+        var result = await classService.CreateAsync(dto);
+
+        //Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(string.Format(ErrorMessage.InvalidClassTeacherName, EntityConstraints.NameMaxLength),
+            result.ErrorMessage);
+        Assert.Null(result.Data);
+    }
+
     [Fact]
     public async Task UpdateAsync_ExistingId_ReturnsSuccess()
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
         const long classId = 3;
-        var dto = new UpdateClassDto(8, 'А');
+        var dto = new UpdateClassDto(8, 'А', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -186,6 +206,7 @@ public class ClassServiceTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal("8А", result.Data.DisplayName);
+        Assert.Equal("Морозова Ирина", result.Data.ClassTeacherName);
     }
 
     [Fact]
@@ -194,7 +215,7 @@ public class ClassServiceTests
         //Arrange
         var classService = new ClassServiceSut().GetService();
         const long classId = 3;
-        var dto = new UpdateClassDto(7, 'а');
+        var dto = new UpdateClassDto(7, 'а', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -210,7 +231,7 @@ public class ClassServiceTests
         //Arrange
         var classService = new ClassServiceSut().GetService();
         const long classId = 3;
-        var dto = new UpdateClassDto(7, 'Б');
+        var dto = new UpdateClassDto(7, 'Б', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -228,7 +249,7 @@ public class ClassServiceTests
     {
         //Arrange
         var classService = new ClassServiceSut().GetService();
-        var dto = new UpdateClassDto(10, 'Б');
+        var dto = new UpdateClassDto(10, 'Б', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -247,7 +268,7 @@ public class ClassServiceTests
         //Arrange
         var classService = new ClassServiceSut().GetService();
         const long classId = 3;
-        var dto = new UpdateClassDto(grade, 'А');
+        var dto = new UpdateClassDto(grade, 'А', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -265,7 +286,7 @@ public class ClassServiceTests
         //Arrange
         var classService = new ClassServiceSut().GetService();
         const long classId = 3;
-        var dto = new UpdateClassDto(7, '1');
+        var dto = new UpdateClassDto(7, '1', "Морозова Ирина");
 
         //Act
         var result = await classService.UpdateAsync(classId, dto);
@@ -273,6 +294,26 @@ public class ClassServiceTests
         //Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(ErrorMessage.InvalidClassLetter, result.ErrorMessage);
+        Assert.Null(result.Data);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(EntityConstraints.NameMaxLength + 1)]
+    public async Task UpdateAsync_InvalidClassTeacherName_ReturnsInvalidClassTeacherName(int length)
+    {
+        //Arrange
+        var classService = new ClassServiceSut().GetService();
+        const long classId = 3;
+        var dto = new UpdateClassDto(8, 'А', new string('а', length));
+
+        //Act
+        var result = await classService.UpdateAsync(classId, dto);
+
+        //Assert
+        Assert.False(result.IsSuccess);
+        Assert.Equal(string.Format(ErrorMessage.InvalidClassTeacherName, EntityConstraints.NameMaxLength),
+            result.ErrorMessage);
         Assert.Null(result.Data);
     }
 }
