@@ -5,14 +5,16 @@ using Leaderboard.Domain.Results;
 
 namespace Leaderboard.Application.Services.Cache;
 
-public class CacheScoreService(ILeaderboardCacheRepository leaderboardCacheRepository, IScoreService inner)
-    : IScoreService
+public class CacheScoreService(
+    ILeaderboardCacheRepository leaderboardCacheRepository,
+    IClassCacheRepository classCacheRepository,
+    IScoreService inner) : IScoreService
 {
     public async Task<BaseResult<ScoreChangedDto>> ChangeScoreAsync(long ownerId, ChangeScoreDto dto,
         Guid? idempotencyKey, CancellationToken cancellationToken = default)
     {
         var result = await inner.ChangeScoreAsync(ownerId, dto, idempotencyKey, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -21,7 +23,7 @@ public class CacheScoreService(ILeaderboardCacheRepository leaderboardCacheRepos
         ChangeScoreBatchDto dto, Guid? idempotencyKey, CancellationToken cancellationToken = default)
     {
         var result = await inner.ChangeScoreBatchAsync(ownerId, dto, idempotencyKey, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -30,5 +32,12 @@ public class CacheScoreService(ILeaderboardCacheRepository leaderboardCacheRepos
         CancellationToken cancellationToken = default)
     {
         return inner.GetHistoryAsync(query, cancellationToken);
+    }
+
+    // Class scores are cached with the classes
+    private async Task RemoveAllAsync()
+    {
+        await leaderboardCacheRepository.RemoveAllAsync();
+        await classCacheRepository.RemoveAllAsync();
     }
 }

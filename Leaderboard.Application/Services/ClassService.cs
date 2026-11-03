@@ -15,41 +15,43 @@ namespace Leaderboard.Application.Services;
 
 public class ClassService(
     IBaseRepository<SchoolClass> classRepository,
+    IBaseRepository<ScoreTransaction> scoreTransactionRepository,
+    IBaseRepository<AcademicYear> academicYearRepository,
     IValidator<IValidatableClass> validator,
     IMapper mapper) : IClassService
 {
     public async Task<CollectionResult<ClassDto>> GetAllAsync(int? grade,
         CancellationToken cancellationToken = default)
     {
+        var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
+        if (yearId == null)
+            return CollectionResult<ClassDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
+                (int)ErrorCodes.CurrentAcademicYearNotFound);
+
         var classes = await classRepository.GetAll().AsNoTracking()
             .Where(x => x.IsActive && (grade == null || x.Grade == grade))
             .OrderBy(x => x.Grade).ThenBy(x => x.Letter)
-            .Select(x => new
-            {
-                Class = x,
-                StudentCount = x.Students.Count(s => s.IsActive),
-            })
+            .SelectScores(scoreTransactionRepository.GetTransactions(yearId, null))
             .ToArrayAsync(cancellationToken);
 
-        var dtos = classes.Select(x => mapper.Map<ClassDto>(x.Class) with { StudentCount = x.StudentCount }).ToArray();
-        return CollectionResult<ClassDto>.Success(dtos);
+        return CollectionResult<ClassDto>.Success(classes.Select(ToDto).ToArray());
     }
 
     public async Task<BaseResult<ClassDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
+        var yearId = await academicYearRepository.GetAll().GetCurrentIdAsync(cancellationToken);
+        if (yearId == null)
+            return BaseResult<ClassDto>.Failure(ErrorMessage.CurrentAcademicYearNotFound,
+                (int)ErrorCodes.CurrentAcademicYearNotFound);
+
         var schoolClass = await classRepository.GetAll().AsNoTracking()
             .Where(x => x.Id == id && x.IsActive)
-            .Select(x => new
-            {
-                Class = x,
-                StudentCount = x.Students.Count(s => s.IsActive),
-            })
+            .SelectScores(scoreTransactionRepository.GetTransactions(yearId, null))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (schoolClass == null) return ClassNotFound();
 
-        var dto = mapper.Map<ClassDto>(schoolClass.Class) with { StudentCount = schoolClass.StudentCount };
-        return BaseResult<ClassDto>.Success(dto);
+        return BaseResult<ClassDto>.Success(ToDto(schoolClass));
     }
 
     public async Task<BaseResult<ClassDto>> CreateAsync(CreateClassDto dto,
@@ -91,6 +93,12 @@ public class ClassService(
 
         return await GetByIdAsync(id, cancellationToken);
     }
+
+    private ClassDto ToDto(ClassScore x) => mapper.Map<ClassDto>(x.Class) with
+    {
+        StudentCount = x.StudentCount,
+        Score = Math.Round(x.Score, 2, MidpointRounding.AwayFromZero)
+    };
 
     private static BaseResult<ClassDto> ClassNotFound() =>
         BaseResult<ClassDto>.Failure(ErrorMessage.ClassNotFound, (int)ErrorCodes.ClassNotFound);

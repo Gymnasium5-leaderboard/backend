@@ -114,20 +114,10 @@ public class LeaderboardService(
             return CollectionResult<ClassLeaderboardEntryDto>.Failure(ErrorMessage.CategoryNotFound,
                 (int)ErrorCodes.CategoryNotFound);
 
-        var transactions = GetTransactions(yearId.Value, categoryId)
-            .Where(t => t.Student.IsActive);
-
         var classes = await classRepository.GetAll().AsNoTracking()
             .Where(c => c.IsActive && c.Students.Any(s => s.IsActive))
             .Where(c => grade == null || c.Grade == grade)
-            .Select(c => new
-            {
-                Class = c,
-                StudentCount = c.Students.Count(s => s.IsActive),
-                Score = (double)transactions.Where(t => t.Student.ClassId == c.Id).Sum(t => t.Delta) /
-                        c.Students.Count(s => s.IsActive),
-                ReachedAt = transactions.Where(t => t.Student.ClassId == c.Id).Max(t => (DateTime?)t.CreatedAt)
-            })
+            .SelectScores(scoreTransactionRepository.GetTransactions(yearId, categoryId))
             .OrderByDescending(c => c.Score)
             .ThenBy(c => c.ReachedAt == null)
             .ThenBy(c => c.ReachedAt)
@@ -137,7 +127,7 @@ public class LeaderboardService(
 
         // Sums of every category, whatever the filter, divided by the student count below
         var classIds = classes.Select(c => c.Class.Id).ToArray();
-        var categorySums = await GetTransactions(yearId.Value, null)
+        var categorySums = await scoreTransactionRepository.GetTransactions(yearId, null)
             .Where(t => t.Student.IsActive && classIds.Contains(t.Student.ClassId))
             .GroupBy(t => new { t.Student.ClassId, t.CategoryId })
             .Select(g => new { g.Key.ClassId, g.Key.CategoryId, Sum = g.Sum(t => t.Delta) })
@@ -158,7 +148,7 @@ public class LeaderboardService(
     private async Task<StudentScore[]> GetStudentScoresAsync(long yearId, long classId, long? categoryId,
         CancellationToken cancellationToken)
     {
-        var transactions = GetTransactions(yearId, categoryId);
+        var transactions = scoreTransactionRepository.GetTransactions(yearId, categoryId);
 
         var students = await studentRepository.GetAll().AsNoTracking()
             .Where(x => x.IsActive && x.Class.IsActive)
@@ -185,17 +175,12 @@ public class LeaderboardService(
     private Task<Dictionary<(long StudentId, long CategoryId), int>> GetStudentCategoryScoresAsync(long yearId,
         long[] studentIds, CancellationToken cancellationToken)
     {
-        return GetTransactions(yearId, null)
+        return scoreTransactionRepository.GetTransactions(yearId, null)
             .Where(t => studentIds.Contains(t.StudentId))
             .GroupBy(t => new { t.StudentId, t.CategoryId })
             .Select(g => new { g.Key.StudentId, g.Key.CategoryId, Score = g.Sum(t => t.Delta) })
             .ToDictionaryAsync(x => (x.StudentId, x.CategoryId), x => x.Score, cancellationToken);
     }
-
-    private IQueryable<ScoreTransaction> GetTransactions(long yearId, long? categoryId) => scoreTransactionRepository
-        .GetAll().Where(t =>
-            t.AcademicYearId == yearId && !t.Category.IsArchived && (categoryId == null || t.CategoryId == categoryId));
-
 
     private async Task<IReadOnlyCollection<CategoryDto>>
         GetActiveCategoriesAsync(CancellationToken cancellationToken) =>

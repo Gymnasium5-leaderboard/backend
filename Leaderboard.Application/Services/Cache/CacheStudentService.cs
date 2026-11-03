@@ -29,11 +29,7 @@ public class CacheStudentService(
         CancellationToken cancellationToken = default)
     {
         var result = await inner.CreateAsync(dto, cancellationToken);
-        if (result.IsSuccess)
-        {
-            await leaderboardCacheRepository.RemoveAllAsync();
-            await classCacheRepository.RemoveAllAsync();
-        }
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -42,11 +38,7 @@ public class CacheStudentService(
         CancellationToken cancellationToken = default)
     {
         var result = await inner.CreateManyAsync(dtos, cancellationToken);
-        if (result.IsSuccess)
-        {
-            await leaderboardCacheRepository.RemoveAllAsync();
-            await classCacheRepository.RemoveAllAsync();
-        }
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -55,11 +47,7 @@ public class CacheStudentService(
         CancellationToken cancellationToken = default)
     {
         var result = await inner.UpdateAsync(id, dto, cancellationToken);
-        if (result.IsSuccess)
-        {
-            await leaderboardCacheRepository.RemoveAllAsync();
-            await classCacheRepository.RemoveAllAsync();
-        }
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -68,11 +56,7 @@ public class CacheStudentService(
         CancellationToken cancellationToken = default)
     {
         var result = await inner.TransferAsync(id, dto, cancellationToken);
-        if (result.IsSuccess)
-        {
-            await leaderboardCacheRepository.RemoveAllAsync();
-            await classCacheRepository.RemoveAllAsync();
-        }
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
     }
@@ -80,12 +64,14 @@ public class CacheStudentService(
     public async Task<BaseResult> DeactivateAsync(long id, CancellationToken cancellationToken = default)
     {
         var result = await inner.DeactivateAsync(id, cancellationToken);
-        if (result.IsSuccess)
-        {
-            await leaderboardCacheRepository.RemoveAllAsync();
-            await classCacheRepository.RemoveAllAsync();
-        }
+        if (result.IsSuccess) await RemoveAllAsync();
 
         return result;
+    }
+
+    private async Task RemoveAllAsync()
+    {
+        await leaderboardCacheRepository.RemoveAllAsync();
+        await classCacheRepository.RemoveAllAsync();
     }
 }

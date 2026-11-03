@@ -24,7 +24,9 @@ internal class ClassServiceSut
 
     public ClassServiceSut()
     {
-        _classService = new ClassService(ClassRepository, Validator, Mapper);
+        _classService = new ClassService(ClassRepository,
+            RepositoryMocks.GetMockScoreTransactionRepository().Object,
+            RepositoryMocks.GetMockAcademicYearRepository().Object, Validator, Mapper);
     }
 
     public IClassService GetService()

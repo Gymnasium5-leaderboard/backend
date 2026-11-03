@@ -8,6 +8,7 @@ namespace Leaderboard.Application.Services.Cache;
 public class CacheCategoryService(
     ICategoryCacheRepository cacheRepository,
     ILeaderboardCacheRepository leaderboardCacheRepository,
+    IClassCacheRepository classCacheRepository,
     ICategoryService inner) : ICategoryService
 {
     public async Task<CollectionResult<CategoryDto>> GetAllAsync(bool includeArchived,
@@ -89,5 +90,6 @@ public class CacheCategoryService(
     {
         await cacheRepository.RemoveAllAsync();
         await leaderboardCacheRepository.RemoveAllAsync();
+        await classCacheRepository.RemoveAllAsync();
     }
 }

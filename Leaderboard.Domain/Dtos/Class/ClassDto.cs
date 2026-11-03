@@ -6,4 +6,5 @@ public record ClassDto(
     char Letter,
     string ClassTeacherName,
     string DisplayName,
-    int StudentCount);
+    int StudentCount,
+    double Score);
