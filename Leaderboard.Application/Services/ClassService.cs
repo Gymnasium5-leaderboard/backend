@@ -24,19 +24,32 @@ public class ClassService(
         var classes = await classRepository.GetAll().AsNoTracking()
             .Where(x => x.IsActive && (grade == null || x.Grade == grade))
             .OrderBy(x => x.Grade).ThenBy(x => x.Letter)
+            .Select(x => new
+            {
+                Class = x,
+                StudentCount = x.Students.Count(s => s.IsActive),
+            })
             .ToArrayAsync(cancellationToken);
 
-        return CollectionResult<ClassDto>.Success(mapper.Map<ClassDto[]>(classes));
+        var dtos = classes.Select(x => mapper.Map<ClassDto>(x.Class) with { StudentCount = x.StudentCount }).ToArray();
+        return CollectionResult<ClassDto>.Success(dtos);
     }
 
     public async Task<BaseResult<ClassDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var schoolClass = await classRepository.GetAll().AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive, cancellationToken);
+            .Where(x => x.Id == id && x.IsActive)
+            .Select(x => new
+            {
+                Class = x,
+                StudentCount = x.Students.Count(s => s.IsActive),
+            })
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (schoolClass == null) return ClassNotFound();
 
-        return BaseResult<ClassDto>.Success(mapper.Map<ClassDto>(schoolClass));
+        var dto = mapper.Map<ClassDto>(schoolClass.Class) with { StudentCount = schoolClass.StudentCount };
+        return BaseResult<ClassDto>.Success(dto);
     }
 
     public async Task<BaseResult<ClassDto>> CreateAsync(CreateClassDto dto,
@@ -76,7 +89,7 @@ public class ClassService(
         mapper.Map(dto, schoolClass);
         await classRepository.SaveChangesAsync(cancellationToken);
 
-        return BaseResult<ClassDto>.Success(mapper.Map<ClassDto>(schoolClass));
+        return await GetByIdAsync(id, cancellationToken);
     }
 
     private static BaseResult<ClassDto> ClassNotFound() =>

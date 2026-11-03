@@ -6,9 +6,12 @@ using Leaderboard.Domain.Results;
 namespace Leaderboard.Application.Services.Cache;
 
 /// <summary>
-///     Students are not cached. Any change of them removes the cached leaderboards.
+///     Students are not cached. Any change of them removes the cached leaderboards and classes (student counts).
 /// </summary>
-public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRepository, IStudentService inner)
+public class CacheStudentService(
+    ILeaderboardCacheRepository leaderboardCacheRepository,
+    IClassCacheRepository classCacheRepository,
+    IStudentService inner)
     : IStudentService
 {
     public Task<CollectionResult<StudentDto>> GetAllAsync(long? classId,
@@ -26,7 +29,11 @@ public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRep
         CancellationToken cancellationToken = default)
     {
         var result = await inner.CreateAsync(dto, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess)
+        {
+            await leaderboardCacheRepository.RemoveAllAsync();
+            await classCacheRepository.RemoveAllAsync();
+        }
 
         return result;
     }
@@ -35,7 +42,11 @@ public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRep
         CancellationToken cancellationToken = default)
     {
         var result = await inner.CreateManyAsync(dtos, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess)
+        {
+            await leaderboardCacheRepository.RemoveAllAsync();
+            await classCacheRepository.RemoveAllAsync();
+        }
 
         return result;
     }
@@ -44,7 +55,11 @@ public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRep
         CancellationToken cancellationToken = default)
     {
         var result = await inner.UpdateAsync(id, dto, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess)
+        {
+            await leaderboardCacheRepository.RemoveAllAsync();
+            await classCacheRepository.RemoveAllAsync();
+        }
 
         return result;
     }
@@ -53,7 +68,11 @@ public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRep
         CancellationToken cancellationToken = default)
     {
         var result = await inner.TransferAsync(id, dto, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess)
+        {
+            await leaderboardCacheRepository.RemoveAllAsync();
+            await classCacheRepository.RemoveAllAsync();
+        }
 
         return result;
     }
@@ -61,7 +80,11 @@ public class CacheStudentService(ILeaderboardCacheRepository leaderboardCacheRep
     public async Task<BaseResult> DeactivateAsync(long id, CancellationToken cancellationToken = default)
     {
         var result = await inner.DeactivateAsync(id, cancellationToken);
-        if (result.IsSuccess) await leaderboardCacheRepository.RemoveAllAsync();
+        if (result.IsSuccess)
+        {
+            await leaderboardCacheRepository.RemoveAllAsync();
+            await classCacheRepository.RemoveAllAsync();
+        }
 
         return result;
     }
