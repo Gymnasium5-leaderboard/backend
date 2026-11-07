@@ -5,6 +5,8 @@ public record ScoreTransactionDto(
     long StudentId,
     string StudentFirstName,
     string StudentLastName,
+    long StudentClassId,
+    string StudentClassDisplayName,
     long OwnerId,
     string OwnerFirstName,
     string OwnerLastName,

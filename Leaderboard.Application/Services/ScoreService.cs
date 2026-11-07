@@ -99,6 +99,7 @@ public class ScoreService(
         var totalCount = await transactions.CountAsync(cancellationToken);
         var page = await transactions
             .Include(x => x.Student)
+            .ThenInclude(x => x.Class)
             .Include(x => x.Owner)
             .Include(x => x.Category)
             .OrderByDescending(x => x.Id)

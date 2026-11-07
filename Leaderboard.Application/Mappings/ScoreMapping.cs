@@ -8,7 +8,7 @@ public class ScoreMapping : Profile
 {
     public ScoreMapping()
     {
-        // Student* and Owner* are flattened from the navigation properties
+        // Student*, Owner* and Category* are flattened from the navigation properties
         CreateMap<ScoreTransaction, ScoreTransactionDto>().ReverseMap();
     }
 }
